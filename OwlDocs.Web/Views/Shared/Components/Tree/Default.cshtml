@@ -1,0 +1,22 @@
+﻿@model DocumentTree
+
+<div>
+    @{ PrintTree(Model); }
+</div>
+
+@functions {
+    public void PrintTree(DocumentTree tree)
+    {
+        <span>@tree.Name</span>
+        <br />
+        <div style="margin-left: 20px;">
+            @if (tree.Children.Count > 0)
+            {
+                foreach (var item in tree.Children)
+                {
+                    PrintTree(item);
+                }
+            }
+        </div>
+    }
+}
