@@ -15,3 +15,44 @@ body {
     white-space: nowrap;
     line-height: 60px; 
 }
+
+/* Override navbar height */
+.navbar {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.sidebar {
+    min-width: 200px;
+    border-right: 1px solid black;
+    padding-right: 5px;
+    padding-left: 20px;
+    user-select: none;
+}
+
+.child-item {
+    margin-left: 20px;
+    display: none;
+}
+
+.child-item.active {
+    display: block !important;
+}
+
+.directory.selected {
+    background-color: aquamarine;
+}
+
+.directory:hover {
+    cursor: pointer;
+}
+
+.directory span {
+    margin-left: 2px;
+}
+
+.file.selected {
+    background-color: darksalmon;
+}
+
+

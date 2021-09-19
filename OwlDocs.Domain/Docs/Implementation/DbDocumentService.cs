@@ -20,9 +20,43 @@ namespace OwlDocs.Domain.Docs
             _dbContext = dbContext;
         }
 
-        public OwlDocument GetDocument(string path)
+        public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
         {
-            throw new NotImplementedException();
+            // get parent path
+            var parentPath = await _dbContext.OwlDocuments
+                .Where(d => d.Id == newDocument.ParentId)
+                .Select(o => o.Path)
+                .FirstAsync();
+
+            // set new path
+            if (parentPath == "/")
+            {
+                newDocument.Path = parentPath + newDocument.Name;
+            }
+            else
+            {
+                newDocument.Path = parentPath + "/" + newDocument.Name;
+            }
+
+            // insert
+            var val = await _dbContext.OwlDocuments.AddAsync(newDocument);
+            await _dbContext.SaveChangesAsync();
+
+            return val.Entity;
+        }
+
+        public async Task<OwlDocument> GetDocumentById(int id)
+        {
+            var document = await _dbContext.OwlDocuments.FindAsync(id);
+
+            return document;
+        }
+
+        public async Task<OwlDocument> GetDocumentByPath(string path)
+        {
+            var document = await _dbContext.OwlDocuments.Where(d => d.Path == path).FirstAsync();
+
+            return document;
         }
 
         public async Task<DocumentTree> GetDocumentTree()
@@ -64,6 +98,18 @@ namespace OwlDocs.Domain.Docs
             return documentTree;
         }
 
+        public async Task<int> UpdateDocument(OwlDocument document)
+        {
+            // get entity from db
+            var entity = await _dbContext.OwlDocuments.FirstAsync(i => i.Id == document.Id);
+
+            // update values
+            entity.Html = document.Html;
+            entity.Markdown = document.Markdown;
+
+            // save changes
+            return await _dbContext.SaveChangesAsync();
+        }
 
         private DocumentTree FindParent(DocumentTree root, int parentId)
         {

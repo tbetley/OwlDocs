@@ -1,22 +1,84 @@
 ﻿@model DocumentTree
+@{
+    var path = ViewData["Path"] as string;
+}
 
-<div>
-    @{ PrintTree(Model); }
+<div class="sidebar">
+    <div class="mb-2">
+        <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">New File</button>
+        <button id="newFolder" class="btn btn-sm btn-outline-dark">New Folder</button>
+    </div>
+    @{
+        foreach (var item in Model.Children)
+        {
+            await PrintTree(item, path);
+        }
+    }
 </div>
 
 @functions {
-    public void PrintTree(DocumentTree tree)
+    public async Task PrintTree(DocumentTree tree, string path)
     {
-        <span>@tree.Name</span>
-        <br />
-        <div style="margin-left: 20px;">
-            @if (tree.Children.Count > 0)
+        <div class="item-group">
+            @if (tree.Type == DocumentType.Directory)
             {
-                foreach (var item in tree.Children)
+                <div class="directory">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2" viewBox="0 0 16 16">
+                        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
+                    </svg>
+                    <span class="directory-name" data-id="@tree.Id">@tree.Name</span>
+                </div>
+            }
+            else if (tree.Type == DocumentType.File)
+            {                
+                <div class="file @(tree.Path == path ? "selected" : "")">
+                    <a href="@("/Docs" + tree.Path)" data-id="@tree.Id">@tree.Name</a>
+                </div>
+            }
+
+            @{
+                string active = "";
+                if (path != null)
                 {
-                    PrintTree(item);
+                    if (path.Contains(tree.Path))
+                    {
+                        active = "active";
+                    }
                 }
             }
+            <div class="child-item @active">
+                @if (tree.Children.Count > 0)
+                {
+                    foreach (var item in tree.Children)
+                    {
+                        await PrintTree(item, path);
+                    }
+                }
+            </div>
         </div>
     }
 }
+
+<script>
+    let directories = document.getElementsByClassName("directory");
+
+    Array.from(directories).forEach(function (element) {
+        element.addEventListener("click", function () {
+            // clear all selected
+            Array.from(directories).forEach(function (dir) {
+                dir.classList.remove("selected");
+            })
+
+            // select current directory
+            element.classList.add("selected");
+
+            // activate child list (show folder items)
+            let child = element.nextElementSibling;
+            if (child.classList.contains("active"))
+                child.classList.remove("active");
+            else
+                child.classList.add("active");
+        })
+    })
+
+</script>

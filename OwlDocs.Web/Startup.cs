@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Markdig;
 
 using OwlDocs.Data;
 using OwlDocs.Domain.Docs;
@@ -35,6 +36,7 @@ namespace OwlDocs.Web
             });
 
             services.AddScoped<IDocumentService, DbDocumentService>();
+            services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
             services.AddMvc();
 
