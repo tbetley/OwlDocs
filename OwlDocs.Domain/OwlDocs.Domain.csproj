@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.26.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OwlDocs.Data\OwlDocs.Data.csproj" />
     <ProjectReference Include="..\OwlDocs.Models\OwlDocs.Models.csproj" />
   </ItemGroup>

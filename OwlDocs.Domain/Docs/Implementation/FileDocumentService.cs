@@ -5,21 +5,36 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+
+using Markdig;
 
 namespace OwlDocs.Domain.Docs
 {
     public class FileDocumentService : IDocumentService
     {
         private readonly DirectoryInfo _root;
+        private readonly MarkdownPipeline _pipeline;
 
-        public FileDocumentService(string root)
+        public FileDocumentService(MarkdownPipeline pipeline, IConfiguration config)
         {
-            _root = new DirectoryInfo(root);
+            _root = new DirectoryInfo(config["DocumentProviderSettings:DirectoryRoot"]);
+            _pipeline = pipeline;
         }
 
-        public Task<OwlDocument> CreateDocument(OwlDocument newDocument)
+        public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
         {
-            throw new NotImplementedException();
+            var document = new OwlDocument();
+
+            var relPath = newDocument.ParentPath + "/" + newDocument.Name;
+            document.Path = relPath;
+            relPath = relPath.Remove(0, 1);            
+
+            var absPath = Path.Combine(_root.FullName, relPath);
+            using var fs = File.Create(absPath);
+            await fs.DisposeAsync();
+
+            return document;
         }
 
         public Task<OwlDocument> GetDocumentById(int id)
@@ -27,16 +42,25 @@ namespace OwlDocs.Domain.Docs
             throw new NotImplementedException();
         }
 
-        public Task<OwlDocument> GetDocumentByPath(string path)
+        public async Task<OwlDocument> GetDocumentByPath(string path)
         {
-            throw new NotImplementedException();
+            path = path.Remove(0, 1);
+            var file = new FileInfo(Path.Combine(_root.FullName, path));
+
+            var document = new OwlDocument();
+            document.Name = file.Name;
+            document.Markdown = await File.ReadAllTextAsync(file.FullName);
+            document.Html = Markdown.ToHtml(document.Markdown);
+            document.Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/");
+
+            return document;
         }
 
         public async Task<DocumentTree> GetDocumentTree()
         {
             var rootDocument = new DocumentTree()
             { 
-               Path = _root.FullName
+               Path = "/"
             };
 
             WalkFiles(rootDocument, _root);
@@ -46,9 +70,15 @@ namespace OwlDocs.Domain.Docs
             return rootDocument;
         }
 
-        public Task<int> UpdateDocument(OwlDocument document)
+        public async Task<int> UpdateDocument(OwlDocument document)
         {
-            throw new NotImplementedException();
+            // write text to file 
+            var relPath = document.Path.Remove(0, 1);
+            var path = Path.Combine(_root.FullName, relPath);
+
+            await File.WriteAllTextAsync(path, document.Markdown);
+
+            return 0;
         }
 
         
@@ -63,7 +93,7 @@ namespace OwlDocs.Domain.Docs
                 var newDoc = new DocumentTree()
                 {
                     Name = file.Name,
-                    Path = file.FullName.Replace(_root.FullName, ""),
+                    Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
                     Type = DocumentType.File                
                 };
 
@@ -76,7 +106,7 @@ namespace OwlDocs.Domain.Docs
                 var newDoc = new DocumentTree()
                 {
                     Name = dir.Name,
-                    Path = dir.FullName.Replace(_root.FullName, ""),
+                    Path = dir.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
                     Type = DocumentType.Directory
                 };
 

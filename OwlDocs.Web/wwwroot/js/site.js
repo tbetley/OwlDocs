@@ -34,8 +34,10 @@ document.getElementById("newFile").addEventListener("click", function (e) {
     console.log(selectedFolder);
 
     let parentId = 1;
+    let parentPath = "/";
     if (selectedFolder) {
-        parentId = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-id");        
+        parentId = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-id");
+        parentPath = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-path");
         selectedFolder = selectedFolder.nextElementSibling;
     }
     else {
@@ -58,6 +60,11 @@ document.getElementById("newFile").addEventListener("click", function (e) {
     parentIdInput.name = "ParentId";
     parentIdInput.value = parentId;
 
+    let parentPathInput = document.createElement("input");
+    parentPathInput.type = "hidden";
+    parentPathInput.name = "ParentPath";
+    parentPathInput.value = parentPath;
+
     let typeInput = document.createElement("input");
     typeInput.type = "hidden";
     typeInput.name = "Type";
@@ -66,6 +73,7 @@ document.getElementById("newFile").addEventListener("click", function (e) {
     form.appendChild(nameInput);
     form.appendChild(parentIdInput);
     form.appendChild(typeInput);
+    form.appendChild(parentPathInput);
 
     // 
     selectedFolder.appendChild(form);
@@ -80,8 +88,10 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     console.log(selectedFolder);
 
     let parentId = 1;
+    let parentPath = "/";
     if (selectedFolder) {
         parentId = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-id");
+        parentPath = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-path");
         selectedFolder = selectedFolder.nextElementSibling;
     }
     else {
@@ -104,6 +114,11 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     parentIdInput.name = "ParentId";
     parentIdInput.value = parentId;
 
+    let parentPathInput = document.createElement("input");
+    parentPathInput.type = "hidden";
+    parentPathInput.name = "ParentPath";
+    parentPathInput.value = parentPath;
+
     let typeInput = document.createElement("input");
     typeInput.type = "hidden";
     typeInput.name = "Type";
@@ -112,6 +127,7 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     form.appendChild(nameInput);
     form.appendChild(parentIdInput);
     form.appendChild(typeInput);
+    form.appendChild(parentPathInput);
 
     // 
     selectedFolder.appendChild(form);

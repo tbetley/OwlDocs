@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Markdig;
 using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
 
@@ -14,12 +13,10 @@ namespace OwlDocs.Web.Controllers
     public class DocsController : Controller
     {
         private readonly IDocumentService _docSvc;
-        private readonly MarkdownPipeline _markdown;
 
-        public DocsController(IDocumentService docSvc, MarkdownPipeline markdown)
+        public DocsController(IDocumentService docSvc)
         {
             _docSvc = docSvc;
-            _markdown = markdown;
         }
 
 
@@ -59,8 +56,6 @@ namespace OwlDocs.Web.Controllers
             // validation
 
             // update
-            document.Html = Markdown.ToHtml(document.Markdown, _markdown);
-
             var result = await _docSvc.UpdateDocument(document);
 
             return Ok();

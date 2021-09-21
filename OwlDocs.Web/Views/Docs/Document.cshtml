@@ -17,7 +17,7 @@
     <div id="content" class="content-mode">
         @Html.Raw(@Model.Html)
     </div>
-    <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" class="edit-mode d-none">
+    <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" class="edit-mode d-none">
         <textarea id="editTextarea" class="w-100">@Model.Markdown</textarea>
     </div>
 </div>
@@ -68,6 +68,7 @@
         data.Id = editContent.getAttribute("data-id");
         data.Markdown = textarea.value;
         data.Name = editContent.getAttribute("data-name");
+        data.Path = editContent.getAttribute("data-path");
         console.log(data);
 
         const result = await fetch("/Docs", {

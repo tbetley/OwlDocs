@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using Markdig;
+
 using OwlDocs.Models;
 using OwlDocs.Data;
 
@@ -14,10 +16,12 @@ namespace OwlDocs.Domain.Docs
     public class DbDocumentService : IDocumentService
     {
         private readonly OwlDocsContext _dbContext;
+        private readonly MarkdownPipeline _pipeline;
 
-        public DbDocumentService(OwlDocsContext dbContext)
+        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline)
         {
             _dbContext = dbContext;
+            _pipeline = pipeline;
         }
 
         public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
@@ -105,7 +109,7 @@ namespace OwlDocs.Domain.Docs
             var entity = await _dbContext.OwlDocuments.FirstAsync(i => i.Id == document.Id);
 
             // update values
-            entity.Html = document.Html;
+            entity.Html = Markdown.ToHtml(document.Markdown, _pipeline);
             entity.Markdown = document.Markdown;
 
             // save changes

@@ -35,18 +35,19 @@ namespace OwlDocs.Web
                 options.UseSqlServer(Configuration.GetConnectionString("TestConnection"));
             });
 
+            services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
             var docProvider = Configuration["DocumentProvider"];
             if (docProvider == "Database")
             {
-                services.AddScoped<IDocumentService, FileDocumentService>();
+                services.AddScoped<IDocumentService, DbDocumentService>();
             }
             else if (docProvider == "File")
             {
                 var root = Configuration["DocumentProviderSettings:DirectoryRoot"];
-                services.AddScoped<IDocumentService>(s => new FileDocumentService(root));
+                services.AddScoped<IDocumentService, FileDocumentService>();
             }
 
-            services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
             services.AddMvc();
 
