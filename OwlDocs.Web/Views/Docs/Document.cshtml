@@ -26,6 +26,7 @@
 <script>
     let textarea = document.getElementById("editTextarea");
 
+    // Show/Hide textarea for editing
     document.getElementById("toggleEdit").addEventListener("click", function (e) {
         document.getElementById("content").classList.toggle("d-none");
         document.getElementById("edit").classList.toggle("d-none");
@@ -40,13 +41,13 @@
             this.textContent = "Edit";
     })
 
-
+    // Adjust textarea height based on content 
     textarea.addEventListener("input", function (e) {
         this.style.height = "";
         this.style.height = (this.scrollHeight + 100) + "px";
     })
 
-    // add keypress for saving
+    // CTRL+S for saving while in textarea
     textarea.addEventListener('keydown', async function (e) {
         if ((e.key == 83 || e.keyCode == 83) && e.ctrlKey) {
             event.preventDefault();
@@ -54,10 +55,12 @@
         }
     })
 
+    // Save handler
     document.getElementById("saveEdit").addEventListener("click", async function (e) {
         await saveDocument();
     })
 
+    // Send updated document to server and reload the page to get updated html
     const saveDocument = async function () {
         const editContent = document.getElementById("edit");
 

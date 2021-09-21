@@ -30,7 +30,7 @@ document.addEventListener("click", function (e) {
 // Create new file
 document.getElementById("newFile").addEventListener("click", function (e) {
     // get selected folder or root
-    let selectedFolder = document.getElementsByClassName("selected")[0];
+    let selectedFolder = document.getElementsByClassName("directory selected")[0];
     console.log(selectedFolder);
 
     let parentId = 1;

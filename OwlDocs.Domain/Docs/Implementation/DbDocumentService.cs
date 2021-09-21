@@ -76,9 +76,10 @@ namespace OwlDocs.Domain.Docs
             // get root item
             DocumentTree documentTree = null;
 
+            // For each document, find it's parent in the tree and add to document tree
             foreach(var item in docTrees)
             {
-                // base case, set root
+                // base case, set root (first item)
                 if (item.ParentId == null)
                 {
                     documentTree = item;
@@ -111,6 +112,13 @@ namespace OwlDocs.Domain.Docs
             return await _dbContext.SaveChangesAsync();
         }
 
+
+        /// <summary>
+        /// Returns the document with given parent id if it exists in the root document.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="parentId"></param>
+        /// <returns></returns>
         private DocumentTree FindParent(DocumentTree root, int parentId)
         {
             // base case

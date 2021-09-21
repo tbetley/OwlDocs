@@ -5,14 +5,27 @@
 
 <div class="sidebar">
     <div class="mb-2">
-        <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">New File</button>
-        <button id="newFolder" class="btn btn-sm btn-outline-dark">New Folder</button>
+        <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">+ File</button>
+        <button id="newFolder" class="btn btn-sm btn-outline-dark">+ Folder</button>
     </div>
     @{
-        foreach (var item in Model.Children)
+        var files = Model.Children.Where(t => t.Type == DocumentType.File);
+        var dirs = Model.Children.Where(t => t.Type == DocumentType.Directory);
+
+        foreach (var file in files)
+        {
+            await PrintTree(file, path);
+        }
+
+        foreach (var dir in dirs)
+        {
+            await PrintTree(dir, path);
+        }
+
+@*        foreach (var item in Model.Children)
         {
             await PrintTree(item, path);
-        }
+        }*@
     }
 </div>
 
@@ -30,7 +43,7 @@
                 </div>
             }
             else if (tree.Type == DocumentType.File)
-            {                
+            {
                 <div class="file @(tree.Path == path ? "selected" : "")">
                     <a href="@("/Docs" + tree.Path)" data-id="@tree.Id">@tree.Name</a>
                 </div>
@@ -49,10 +62,24 @@
             <div class="child-item @active">
                 @if (tree.Children.Count > 0)
                 {
-                    foreach (var item in tree.Children)
+                    var files = tree.Children.Where(t => t.Type == DocumentType.File);
+                    var directories = tree.Children.Where(t => t.Type == DocumentType.Directory);
+
+                    foreach (var file in files)
+                    {
+                        await PrintTree(file, path);
+                    }
+
+                    foreach (var dir in directories)
+                    {
+                        await PrintTree(dir, path);
+                    }
+
+
+                    @*foreach (var item in tree.Children)
                     {
                         await PrintTree(item, path);
-                    }
+                    }*@
                 }
             </div>
         </div>

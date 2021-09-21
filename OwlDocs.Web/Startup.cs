@@ -35,7 +35,17 @@ namespace OwlDocs.Web
                 options.UseSqlServer(Configuration.GetConnectionString("TestConnection"));
             });
 
-            services.AddScoped<IDocumentService, DbDocumentService>();
+            var docProvider = Configuration["DocumentProvider"];
+            if (docProvider == "Database")
+            {
+                services.AddScoped<IDocumentService, FileDocumentService>();
+            }
+            else if (docProvider == "File")
+            {
+                var root = Configuration["DocumentProviderSettings:DirectoryRoot"];
+                services.AddScoped<IDocumentService>(s => new FileDocumentService(root));
+            }
+
             services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
             services.AddMvc();
