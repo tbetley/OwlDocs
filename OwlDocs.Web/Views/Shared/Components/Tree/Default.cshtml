@@ -8,25 +8,32 @@
         <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">+ File</button>
         <button id="newFolder" class="btn btn-sm btn-outline-dark">+ Folder</button>
     </div>
-    @{
-        var files = Model.Children.Where(t => t.Type == DocumentType.File);
-        var dirs = Model.Children.Where(t => t.Type == DocumentType.Directory);
+    <div id="sidebar-items">
+        @{
+            var files = Model.Children.Where(t => t.Type == DocumentType.File);
+            var dirs = Model.Children.Where(t => t.Type == DocumentType.Directory);
 
-        foreach (var file in files)
-        {
-            await PrintTree(file, path);
+            foreach (var file in files)
+            {
+                await PrintTree(file, path);
+            }
+
+            foreach (var dir in dirs)
+            {
+                await PrintTree(dir, path);
+            }
         }
+    </div>    
+</div>
 
-        foreach (var dir in dirs)
-        {
-            await PrintTree(dir, path);
-        }
-
-@*        foreach (var item in Model.Children)
-        {
-            await PrintTree(item, path);
-        }*@
-    }
+<div id="menu" class="menu">
+    <div class="menu-options">
+        <form asp-controller="Docs" asp-action="DeleteDocument" method="post">
+            <input id="menuPathInput" type="hidden" name="Path" value=""/>
+            <input id="menuTypeInput" type="hidden" name="Type" value=""/>
+            <input type="submit" class="menu-option" value="Delete"/>
+        </form>
+    </div>
 </div>
 
 @functions {
@@ -36,16 +43,16 @@
             @if (tree.Type == DocumentType.Directory)
             {
                 <div class="directory">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2 directory-icon" viewBox="0 0 16 16">
                         <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
                     </svg>
-                    <span class="directory-name" data-id="@tree.Id" data-path="@tree.Path">@tree.Name</span>
+                    <span class="directory-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type">@tree.Name</span>
                 </div>
             }
             else if (tree.Type == DocumentType.File)
             {
                 <div class="file @(tree.Path == path ? "selected" : "")">
-                    <a href="@("/Docs" + tree.Path)" data-id="@tree.Id" data-path="@tree.Path">@tree.Name</a>
+                    <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type">@tree.Name</a>
                 </div>
             }
 

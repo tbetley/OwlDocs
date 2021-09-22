@@ -30,25 +30,27 @@ namespace OwlDocs.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<OwlDocsContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("TestConnection"));
-            });
-
+            // Add markdown services
             services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
             var docProvider = Configuration["DocumentProvider"];
             if (docProvider == "Database")
             {
+                // add database services
+                services.AddDbContext<OwlDocsContext>(options =>
+                {
+                    options.UseSqlServer(Configuration.GetConnectionString("TestConnection"));
+                });
+
                 services.AddScoped<IDocumentService, DbDocumentService>();
             }
             else if (docProvider == "File")
             {
-                var root = Configuration["DocumentProviderSettings:DirectoryRoot"];
+                // add file services
                 services.AddScoped<IDocumentService, FileDocumentService>();
             }
 
-
+            // Add asp.net core required services
             services.AddMvc();
 
             services.AddDatabaseDeveloperPageExceptionFilter();

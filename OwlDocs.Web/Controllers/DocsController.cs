@@ -45,8 +45,16 @@ namespace OwlDocs.Web.Controllers
             // insert
             var result = await _docSvc.CreateDocument(document);
 
-
-            return Redirect("/Docs" + result.Path);
+            if (document.Type == DocumentType.File)
+            {
+                return Redirect("/Docs" + result.Path);
+            }
+            else
+            {               
+                HttpContext.Request.Headers.TryGetValue("Referer", out var referrer);
+                var url = referrer.First();
+                return Redirect(url);
+            }
         }
 
         [Route("")]
@@ -58,6 +66,14 @@ namespace OwlDocs.Web.Controllers
             // update
             var result = await _docSvc.UpdateDocument(document);
 
+            return Ok();
+        }
+
+        [Route("delete")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteDocument(OwlDocument document)
+        {
+            // TODO IMPLEMENT DELETE ACTION
             return Ok();
         }
     }

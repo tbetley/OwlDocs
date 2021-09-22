@@ -2,7 +2,11 @@
 
 // Event listener for "off click", removes selected folder highlighting
 document.addEventListener("click", function (e) {
-    console.log(e.target);
+
+    let menu = document.getElementById("menu");
+    if (menu.style.display == "block")
+        menu.style.display = "none";
+
     if (!e.target.classList.contains("bi-folder2") &&
         !e.target.classList.contains("directory-name") &&
         !e.target.classList.contains("directory"))
@@ -84,7 +88,7 @@ document.getElementById("newFile").addEventListener("click", function (e) {
 // Create new folder
 document.getElementById("newFolder").addEventListener("click", function (e) {
     // get selected folder or root
-    let selectedFolder = document.getElementsByClassName("selected")[0];
+    let selectedFolder = document.getElementsByClassName("directory selected")[0];
     console.log(selectedFolder);
 
     let parentId = 1;
@@ -132,4 +136,45 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     // 
     selectedFolder.appendChild(form);
     nameInput.focus();
+})
+
+
+// Context menu event listener
+document.getElementById("sidebar-items").addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+
+    console.log(e.target);
+
+    // get path, type for selected item
+    // get data for file
+    let targetElement;
+    if (e.target.classList.contains("file-name")) {
+        targetElement = e.target;
+    }
+    else if (e.target.getElementsByClassName("file-name")[0]) {
+        targetElement = e.target.getElementsByClassName("file-name")[0];
+    }
+    // get data for directory
+    else if (e.target.classList.contains("directory-name")) {
+        targetElement = e.target;
+    }
+    else if (e.target.getElementsByClassName("directory-name")[0]) {
+        targetElement = e.target.getElementsByClassName("directory-name")[0];
+    }
+    else if (e.target.classList.contains("directory-icon")) {
+        targetElement = e.target.nextElementSibling;
+    }
+
+    console.log("TARGET:");
+    console.log(targetElement);
+
+    // set menu delete button values
+    document.getElementById("menuPathInput").value = targetElement.getAttribute("data-path");
+    document.getElementById("menuTypeInput").value = targetElement.getAttribute("data-type");
+
+    // Open menu at click area
+    let menu = document.getElementById("menu");
+    menu.style.left = `${e.pageX}px`;
+    menu.style.top = `${e.pageY}px`;
+    menu.style.display = "block";
 })
