@@ -37,9 +37,14 @@ namespace OwlDocs.Web
 
             var services = scope.ServiceProvider;
 
-            var context = services.GetRequiredService<OwlDocsContext>();
-            context.Database.EnsureCreated();
-            DbInitializer.InitializeDatabase(context);
+            var config = services.GetRequiredService<IConfiguration>();
+
+            if (config["DocumentProvider"] == "Database")
+            {
+                var context = services.GetRequiredService<OwlDocsContext>();
+                context.Database.EnsureCreated();
+                DbInitializer.InitializeDatabase(context);
+            }
         }
     }
 }

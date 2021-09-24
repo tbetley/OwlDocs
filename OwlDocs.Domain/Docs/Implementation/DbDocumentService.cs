@@ -31,6 +31,7 @@ namespace OwlDocs.Domain.Docs
                 .Where(d => d.Id == newDocument.ParentId)
                 .Select(o => o.Path)
                 .FirstAsync();
+            
 
             // set new path
             if (parentPath == "/")
@@ -42,6 +43,14 @@ namespace OwlDocs.Domain.Docs
                 newDocument.Path = parentPath + "/" + newDocument.Name;
             }
 
+            // validate that a document does not exist with that same path
+            var duplicate = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Path == newDocument.Path);
+
+            if (duplicate != null)
+            {
+                throw new Exception($"An Item Already Exists With a Path: {newDocument.Path}");
+            }
+
             // insert
             var val = await _dbContext.OwlDocuments.AddAsync(newDocument);
             await _dbContext.SaveChangesAsync();
@@ -49,12 +58,42 @@ namespace OwlDocs.Domain.Docs
             return val.Entity;
         }
 
+
+        public async Task<int> DeleteDocument(OwlDocument document)
+        {
+            // check that document exists
+            var entity = await _dbContext.OwlDocuments.FindAsync(document.Id);
+
+            if (entity == null)
+            {
+                throw new Exception("Document Not Found");
+            }
+
+            // check for children
+            var children = await _dbContext.OwlDocuments.Where(d => d.ParentId == document.Id).ToListAsync();
+
+            // recursively delete children
+            if (children != null)
+            {
+                foreach(var child in children)
+                {
+                    await DeleteDocument(child);
+                }
+            }
+
+            // delete
+            _dbContext.OwlDocuments.Remove(entity);
+            return await _dbContext.SaveChangesAsync();
+        }
+
+
         public async Task<OwlDocument> GetDocumentById(int id)
         {
             var document = await _dbContext.OwlDocuments.FindAsync(id);
 
             return document;
         }
+
 
         public async Task<OwlDocument> GetDocumentByPath(string path)
         {

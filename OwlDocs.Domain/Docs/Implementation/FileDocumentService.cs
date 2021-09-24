@@ -28,13 +28,38 @@ namespace OwlDocs.Domain.Docs
 
             var relPath = newDocument.ParentPath + "/" + newDocument.Name;
             document.Path = relPath;
-            relPath = relPath.Remove(0, 1);            
+            relPath = relPath.Remove(0, 1);
 
             var absPath = Path.Combine(_root.FullName, relPath);
-            using var fs = File.Create(absPath);
-            await fs.DisposeAsync();
 
+            // check if file already exists at path
+            if (newDocument.Type == DocumentType.File)
+            {               
+                if (File.Exists(absPath))
+                {
+                    throw new Exception($"A File Already Exists With a Path: {absPath}");
+                }
+
+                using var fs = File.Create(absPath);
+                await fs.DisposeAsync();
+            }
+            else if (newDocument.Type == DocumentType.Directory)
+            {
+                if (Directory.Exists(absPath))
+                {
+                    throw new Exception($"A Folder Already Exists With a Path: {absPath}");
+                }
+
+                // throws if not successful
+                var dirInfo = Directory.CreateDirectory(absPath);
+            }
+            
             return document;
+        }
+
+        public Task<int> DeleteDocument(OwlDocument document)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<OwlDocument> GetDocumentById(int id)
@@ -47,11 +72,9 @@ namespace OwlDocs.Domain.Docs
             path = path.Remove(0, 1);
             var file = new FileInfo(Path.Combine(_root.FullName, path));
 
-            var document = new OwlDocument();
-            document.Name = file.Name;
+            var document = new OwlDocument(file, _root.FullName);
             document.Markdown = await File.ReadAllTextAsync(file.FullName);
             document.Html = Markdown.ToHtml(document.Markdown);
-            document.Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/");
 
             return document;
         }
@@ -59,8 +82,8 @@ namespace OwlDocs.Domain.Docs
         public async Task<DocumentTree> GetDocumentTree()
         {
             var rootDocument = new DocumentTree()
-            { 
-               Path = "/"
+            {
+                Path = "/"
             };
 
             WalkFiles(rootDocument, _root);
@@ -81,7 +104,7 @@ namespace OwlDocs.Domain.Docs
             return 0;
         }
 
-        
+
         private void WalkFiles(DocumentTree tree, DirectoryInfo root)
         {
             var files = root.GetFiles("*.md");
@@ -94,7 +117,7 @@ namespace OwlDocs.Domain.Docs
                 {
                     Name = file.Name,
                     Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
-                    Type = DocumentType.File                
+                    Type = DocumentType.File
                 };
 
                 tree.Children.Add(newDoc);

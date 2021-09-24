@@ -171,10 +171,17 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
     // set menu delete button values
     document.getElementById("menuPathInput").value = targetElement.getAttribute("data-path");
     document.getElementById("menuTypeInput").value = targetElement.getAttribute("data-type");
+    document.getElementById("menuIdInput").value = targetElement.getAttribute("data-id");
+    document.getElementById("menuForm").addEventListener("submit", function (e) {
+        if (!confirm("Are you sure you want to delete this and all child items?"))
+            e.preventDefault();
+    })
 
     // Open menu at click area
     let menu = document.getElementById("menu");
     menu.style.left = `${e.pageX}px`;
     menu.style.top = `${e.pageY}px`;
     menu.style.display = "block";
+
+
 })

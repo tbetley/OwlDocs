@@ -17,4 +17,8 @@
     <ProjectReference Include="..\OwlDocs.Models\OwlDocs.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Sql\" />
+  </ItemGroup>
+
 </Project>

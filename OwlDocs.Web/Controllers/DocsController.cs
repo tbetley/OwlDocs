@@ -43,7 +43,16 @@ namespace OwlDocs.Web.Controllers
             // validation
 
             // insert
-            var result = await _docSvc.CreateDocument(document);
+            OwlDocument result;
+            try
+            {
+                result = await _docSvc.CreateDocument(document);
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
             if (document.Type == DocumentType.File)
             {
@@ -74,6 +83,8 @@ namespace OwlDocs.Web.Controllers
         public async Task<IActionResult> DeleteDocument(OwlDocument document)
         {
             // TODO IMPLEMENT DELETE ACTION
+            await _docSvc.DeleteDocument(document);
+
             return Ok();
         }
     }
