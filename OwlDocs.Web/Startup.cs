@@ -61,14 +61,15 @@ namespace OwlDocs.Web
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
             else
             {
-                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
+            app.UseExceptionHandler("/Error");
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

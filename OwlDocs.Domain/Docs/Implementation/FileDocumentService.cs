@@ -26,7 +26,7 @@ namespace OwlDocs.Domain.Docs
         {
             var document = new OwlDocument();
 
-            var relPath = newDocument.ParentPath + "/" + newDocument.Name;
+            var relPath = Path.Combine(newDocument.ParentPath, newDocument.Name);
             document.Path = relPath;
             relPath = relPath.Remove(0, 1);
 
@@ -59,7 +59,23 @@ namespace OwlDocs.Domain.Docs
 
         public Task<int> DeleteDocument(OwlDocument document)
         {
-            throw new NotImplementedException();
+            var path = Path.Combine(_root.FullName, document.Path.Remove(0,1));
+
+            if (document.Type == DocumentType.File)
+            {
+                File.Delete(path);
+            }
+            else if (document.Type == DocumentType.Directory)
+            {
+                // recursively delete folder/files
+                Directory.Delete(path, true);
+            }
+            else
+            {
+                throw new Exception("File Type Cannot Be Deleted");
+            }
+            
+            return Task.FromResult(0);
         }
 
         public Task<OwlDocument> GetDocumentById(int id)
@@ -94,8 +110,27 @@ namespace OwlDocs.Domain.Docs
         }
 
         public async Task<int> UpdateDocument(OwlDocument document)
-        {
-            // write text to file 
+        {            
+            // check if parent changed, if so, move item
+            if (document.ParentPath != null &&
+                document.Path.Remove(document.Path.LastIndexOf("/")) != document.ParentPath)
+            {
+                var parentPath = Path.Combine(_root.FullName, document.ParentPath.Remove(0,1));
+                var docPath = Path.Combine(_root.FullName, document.Path.Remove(0, 1));
+                if (document.Type == DocumentType.File)
+                {
+                    File.Move(docPath, Path.Combine(parentPath, document.Name));
+                }
+                else if (document.Type == DocumentType.Directory)
+                {
+                    Directory.Move(docPath, Path.Combine(parentPath, document.Name));
+                }
+
+                return 0;
+            }
+            
+
+            // update text 
             var relPath = document.Path.Remove(0, 1);
             var path = Path.Combine(_root.FullName, relPath);
 

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using OwlDocs.Models;
 using OwlDocs.Domain.Docs;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace OwlDocs.Web.Controllers
 {
@@ -21,15 +23,27 @@ namespace OwlDocs.Web.Controllers
         [Route("/")]
         public async Task<IActionResult> Index()
         {
-            var tree = await _docSvc.GetDocumentTree();
-
-            return View(tree);
+            return View();
         }
 
         [Route("/privacy")]
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        [Route("/error")]
+        public IActionResult Error()
+        {
+            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+
+            var viewModel = new Error
+            {
+                RequestId = HttpContext.TraceIdentifier,
+                ExceptionMessage = exceptionHandlerFeature?.Error?.Message
+            };
+
+            return View(viewModel);
         }
     }
 }

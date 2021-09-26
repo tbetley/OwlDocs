@@ -66,26 +66,51 @@ namespace OwlDocs.Web.Controllers
             }
         }
 
+        /// <summary>
+        /// API ENDPOINT
+        /// </summary>
+        /// <param name="document"></param>
+        /// <returns></returns>
         [Route("")]
         [HttpPut]
         public async Task<IActionResult> UpdateDocument([FromBody] OwlDocument document)
         {
-            // validation
+            if (document == null)
+                return BadRequest("Invalid Document Input");
 
-            // update
-            var result = await _docSvc.UpdateDocument(document);
+            try
+            {
+                var result = await _docSvc.UpdateDocument(document);
+                
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
             return Ok();
         }
+
 
         [Route("delete")]
         [HttpPost]
         public async Task<IActionResult> DeleteDocument(OwlDocument document)
         {
             // TODO IMPLEMENT DELETE ACTION
-            await _docSvc.DeleteDocument(document);
+            try
+            {
+                await _docSvc.DeleteDocument(document);
+            }
+            catch (Exception e)
+            {
+                // log
 
-            return Ok();
+                // throw for error handling middleware
+                throw new Exception("Error Deleting Document");
+            }
+
+            // redirect to a view
+            return Redirect(HttpContext.Request.Headers["Referer"]);
         }
     }
 }
