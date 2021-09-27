@@ -29,5 +29,6 @@ namespace OwlDocs.Models
         public string Name { get; set; }
         public string Markdown { get; set; }
         public string Html { get; set; }
+        public byte[] Data { get; set; }
     }
 }

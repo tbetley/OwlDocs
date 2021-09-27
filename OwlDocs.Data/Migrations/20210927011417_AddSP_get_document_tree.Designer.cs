@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OwlDocs.Data;
 
 namespace OwlDocs.Data.Migrations
 {
     [DbContext(typeof(OwlDocsContext))]
-    partial class OwlDocsContextModelSnapshot : ModelSnapshot
+    [Migration("20210927011417_AddSP_get_document_tree")]
+    partial class AddSP_get_document_tree
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

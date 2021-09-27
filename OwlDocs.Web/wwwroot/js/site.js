@@ -164,7 +164,9 @@ document.addEventListener("click", function (e) {
     if (!e.target.classList.contains("bi-folder2") &&
         !e.target.classList.contains("directory-name") &&
         !e.target.classList.contains("directory") &&
-        e.target.id != "newFile") {
+        e.target.id != "newFile" &&
+        e.target.id != "newImage" && 
+        e.target.id != "newFolder") {
         let directory = document.getElementsByClassName("directory selected")[0];
 
         if (directory) {
@@ -176,7 +178,9 @@ document.addEventListener("click", function (e) {
     if (e.target.id != "newFile" &&
         e.target.id != "newFileInput" &&
         e.target.id != "newFolder" &&
-        e.target.id != "newFolderInput") {
+        e.target.id != "newFolderInput" &&
+        e.target.id != "newImage" &&
+        e.target.id != "newImageInput") {
 
         console.log("REMOVING FORM")
         document.getElementById("newFileForm")?.remove();
@@ -295,6 +299,32 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     // 
     selectedFolder.appendChild(form);
     nameInput.focus();
+})
+
+
+document.getElementById("newImage").addEventListener("click", function (e) {
+    console.log("NEW IMAGE CLICK");
+    // get selected folder or root
+    let selectedFolder = document.getElementsByClassName("directory selected")[0];
+    console.log(selectedFolder);
+
+    let parentId = 1;
+    let parentPath = "/";
+    if (selectedFolder) {
+        selectedFolder.nextElementSibling.classList.add("active");
+        parentId = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-id");
+        parentPath = selectedFolder.getElementsByClassName("directory-name")[0].getAttribute("data-path");
+        selectedFolder = selectedFolder.nextElementSibling;
+    }
+    else {
+        selectedFolder = document.getElementsByClassName("child-item")[0];
+    }
+
+    // open modal
+    let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("imageUploadModal"));
+    document.getElementById("fileUploadParentPath").value = parentPath;
+    document.getElementById("fileUploadParentId").value = parentId;
+    modal.show();    
 })
 
 

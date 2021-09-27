@@ -104,7 +104,9 @@ namespace OwlDocs.Domain.Docs
 
         public async Task<DocumentTree> GetDocumentTree()
         {
-            var docTrees = await _dbContext.OwlDocuments
+            var owlDocs = await _dbContext.OwlDocuments.FromSqlRaw("get_document_hiearchy").ToListAsync();
+
+            var docTrees = owlDocs
                 .Select(s => new DocumentTree()
                 {
                     Id = s.Id,
@@ -112,9 +114,7 @@ namespace OwlDocs.Domain.Docs
                     Name = s.Name,
                     Path = s.Path,
                     Type = s.Type
-                })
-                .OrderBy(s => s.ParentId)
-                .ToListAsync();
+                }).ToList();                       
 
             // get root item
             DocumentTree documentTree = null;
@@ -144,6 +144,55 @@ namespace OwlDocs.Domain.Docs
 
         public async Task<int> UpdateDocument(OwlDocument document)
         {
+            // check if parent changed, if so, move item
+            if (document.ParentPath != null &&
+                document.Path.Remove(document.Path.LastIndexOf("/")) != document.ParentPath)
+            {
+                var newPath = document.ParentPath + "/" + document.Name;
+
+                // check for duplicate
+                var duplicate = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Path == newPath);
+
+                if (duplicate != null)
+                {
+                    throw new Exception("Item with the path " + newPath + " already exists.");
+                }
+
+                // get new parent directory
+                var newParent = await _dbContext.OwlDocuments.FirstAsync(d => d.Id == document.ParentId);
+
+                // update document
+                var updatedDoc = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Id == document.Id);
+                updatedDoc.Path = newPath;
+                updatedDoc.ParentPath = newParent.Path;
+                updatedDoc.ParentId = newParent.Id;
+
+                // get elements that are children of the updated document
+                var children = await _dbContext.OwlDocuments.Where(d => d.ParentId == updatedDoc.Id).ToListAsync();
+
+                // update children
+                if (children != null && children.Count > 0)
+                {
+                    foreach (var child in children)
+                    {
+                        // create doc object for updating
+                        var updateChild = new OwlDocument();
+                        updateChild.Id = child.Id;
+                        updateChild.Path = child.Path;
+                        updateChild.Name = child.Name;
+                        updateChild.ParentId = updatedDoc.Id;
+                        updateChild.ParentPath = updatedDoc.Path;
+                        updateChild.Type = updatedDoc.Type;
+
+                        await UpdateDocument(updateChild);
+                    }
+                }
+
+
+                return await _dbContext.SaveChangesAsync();
+            }
+
+
             // get entity from db
             var entity = await _dbContext.OwlDocuments.FirstAsync(i => i.Id == document.Id);
 

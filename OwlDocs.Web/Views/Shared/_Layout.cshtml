@@ -35,14 +35,41 @@
         <div class="col container">
             @RenderBody()
         </div>
-    </div>  
-    
+    </div>
+
 
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2021 - OwlDocs.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
+
+    <div id="imageUploadModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-controller="Docs" asp-action="CreateImage" method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Image Upload</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <label for="fileUploadParentPath" class="form-label">Parent Path:</label>
+                            <input id="fileUploadParentPath" name="ParentPath" class="form-control" type="text" value="" readonly/>
+                            <label for="fileUploadParentId" class="form-label">Parent Id:</label>
+                            <input id="fileUploadParentId" name="ParentId" class="form-control" type="text" value="" readonly />
+                            <label for="fileUpload" class="form-label">Image:</label>
+                            <input id="fileUpload" name="Files" type="file" class="form-control" /> 
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

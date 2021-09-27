@@ -8,6 +8,7 @@
     <div class="mb-2">
         <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">+ File</button>
         <button id="newFolder" class="btn btn-sm btn-outline-dark">+ Folder</button>
+        <button id="newImage" class="btn btn-sm btn-outline-success">+ Image</button>
     </div>
     <div id="sidebar-items">
         <div class="item-group">
@@ -20,11 +21,17 @@
             <div class="child-item active">
                 @{
                     var files = Model.Children.Where(t => t.Type == DocumentType.File);
+                    var images = Model.Children.Where(t => t.Type == DocumentType.Image);
                     var dirs = Model.Children.Where(t => t.Type == DocumentType.Directory);
 
                     foreach (var file in files)
                     {
                         await PrintTree(file, path);
+                    }
+
+                    foreach(var image in images)
+                    {
+                        await PrintTree(image, path);
                     }
 
                     foreach (var dir in dirs)
@@ -34,24 +41,25 @@
                 }
             </div>
         </div>
-    </div>    
+    </div>
 </div>
 
 @*Context menu*@
 <div id="menu" class="menu">
     <div class="menu-options">
         <form id="menuForm" asp-controller="Docs" asp-action="DeleteDocument" method="post">
-            <input id="menuPathInput" type="hidden" name="Path" value=""/>
-            <input id="menuTypeInput" type="hidden" name="Type" value=""/>
+            <input id="menuPathInput" type="hidden" name="Path" value="" />
+            <input id="menuTypeInput" type="hidden" name="Type" value="" />
             <input id="menuIdInput" type="hidden" name="Id" value="" />
-            <input type="submit" class="menu-option" value="Delete"/>
+            <input type="submit" class="menu-option" value="Delete" />
         </form>
     </div>
 </div>
 
+
 @*
     Prints that current directory tree
-*@    
+*@
 @functions {
     public async Task PrintTree(DocumentTree tree, string path)
     {
@@ -66,6 +74,12 @@
                 </div>
             }
             else if (tree.Type == DocumentType.File)
+            {
+                <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
+                    <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
+                </div>
+            }
+            else if (tree.Type == DocumentType.Image)
             {
                 <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
                     <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
@@ -86,11 +100,17 @@
                 @if (tree.Children.Count > 0)
                 {
                     var files = tree.Children.Where(t => t.Type == DocumentType.File);
+                    var images = tree.Children.Where(t => t.Type == DocumentType.Image);
                     var directories = tree.Children.Where(t => t.Type == DocumentType.Directory);
 
                     foreach (var file in files)
                     {
                         await PrintTree(file, path);
+                    }
+
+                    foreach(var image in images)
+                    {
+                        await PrintTree(image, path);
                     }
 
                     foreach (var dir in directories)

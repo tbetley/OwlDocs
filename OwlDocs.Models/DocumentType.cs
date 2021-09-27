@@ -10,6 +10,7 @@ namespace OwlDocs.Models
     {
         Root,
         File,
-        Directory
+        Directory,
+        Image
     }
 }
