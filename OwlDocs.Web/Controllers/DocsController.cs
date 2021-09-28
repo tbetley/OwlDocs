@@ -67,21 +67,6 @@ namespace OwlDocs.Web.Controllers
             }
         }
 
-        [Route("Image")]
-        [HttpPost]
-        public async Task<IActionResult> CreateImage(OwlDocument document)
-        {
-            if (Request.Form.Files != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await Request.Form.Files[0].CopyToAsync(memoryStream);
-                document.Data = memoryStream.ToArray();
-                document.Name = Request.Form.Files[0].FileName;
-
-                await _docSvc.CreateDocument(document);
-            }
-            return Ok();
-        }
 
         /// <summary>
         /// API ENDPOINT

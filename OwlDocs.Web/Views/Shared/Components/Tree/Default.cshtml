@@ -10,6 +10,12 @@
         <button id="newFolder" class="btn btn-sm btn-outline-dark">+ Folder</button>
         <button id="newImage" class="btn btn-sm btn-outline-success">+ Image</button>
     </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="showImagesCheckbox">
+        <label class="form-check-label" for="showImagesCheckbox">
+            Show Images
+        </label>
+    </div>
     <div id="sidebar-items">
         <div class="item-group">
             <div class="directory" draggable="false">
@@ -81,7 +87,7 @@
             }
             else if (tree.Type == DocumentType.Image)
             {
-                <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
+                <div class="file image image-hidden @(tree.Path == path ? "selected" : "")" draggable="true">
                     <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
                 </div>
             }

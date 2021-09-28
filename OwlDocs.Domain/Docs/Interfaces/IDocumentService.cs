@@ -14,6 +14,7 @@ namespace OwlDocs.Domain.Docs
         Task<OwlDocument> GetDocumentByPath(string path);
         Task<OwlDocument> GetDocumentById(int id);
         Task<OwlDocument> CreateDocument(OwlDocument newDocument);
+        Task<OwlDocument> GetDocumentImage(string path);
         Task<int> UpdateDocument(OwlDocument document);
         Task<int> DeleteDocument(OwlDocument document);
     }

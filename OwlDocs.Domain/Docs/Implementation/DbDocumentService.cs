@@ -10,6 +10,7 @@ using Markdig;
 
 using OwlDocs.Models;
 using OwlDocs.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace OwlDocs.Domain.Docs
 {
@@ -17,11 +18,13 @@ namespace OwlDocs.Domain.Docs
     {
         private readonly OwlDocsContext _dbContext;
         private readonly MarkdownPipeline _pipeline;
+        private readonly IConfiguration _config;
 
-        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline)
+        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline, IConfiguration config)
         {
             _dbContext = dbContext;
             _pipeline = pipeline;
+            _config = config;
         }
 
         public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
@@ -100,6 +103,13 @@ namespace OwlDocs.Domain.Docs
             var document = await _dbContext.OwlDocuments.Where(d => d.Path == path).FirstAsync();
 
             return document;
+        }
+
+        public async Task<OwlDocument> GetDocumentImage(string path)
+        {
+            var imageDoc = await GetDocumentByPath(FormatPath(path));
+
+            return imageDoc;
         }
 
         public async Task<DocumentTree> GetDocumentTree()
@@ -233,6 +243,22 @@ namespace OwlDocs.Domain.Docs
             {
                 return null;
             }
+        }
+
+
+        private static string FormatPath(string path)
+        {
+            if (path[0] != '/')
+            {
+                path = "/" + path;
+            }
+
+            if (path[path.Length - 1] == '/')
+            {
+                path = path.Remove(path.Length - 1);
+            }
+
+            return path;
         }
     }
 }

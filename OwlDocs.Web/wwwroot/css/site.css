@@ -51,6 +51,10 @@ body {
     margin-left: 2px;
 }
 
+.image-hidden {
+    display: none;
+}
+
 .file.selected {
     background-color: darksalmon;
 }

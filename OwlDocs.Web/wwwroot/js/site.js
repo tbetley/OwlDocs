@@ -20,6 +20,37 @@ Array.from(directories).forEach(function (element) {
     })
 })
 
+
+// Event handler for showing images
+let showImages = localStorage.getItem("showImages") === "true";
+if (showImages) {
+    var images = document.getElementsByClassName("image");
+    Array.from(images).forEach(function (image) {
+        image.classList.remove("image-hidden");
+    })
+    document.getElementById("showImagesCheckbox").checked = true;
+}
+
+document.getElementById("showImagesCheckbox").addEventListener("change", function (event) {
+    console.log("CHECKED");
+
+    var images = document.getElementsByClassName("image");
+    if (this.checked) {
+        Array.from(images).forEach(function (image) {
+            image.classList.remove("image-hidden");
+        })
+
+        localStorage.setItem("showImages", "true");
+    }
+    else {
+        Array.from(images).forEach(function (image) {
+            image.classList.add("image-hidden");
+        })
+
+        localStorage.setItem("showImages", "false");
+    }
+})
+
 // drag start functions
 function directoryDragStart(event) {
 
@@ -151,6 +182,7 @@ window.addEventListener("DOMContentLoaded", function () {
         element.addEventListener("dragstart", fileDragStart)
     })
 })
+
 
 
 // Event listener for "off click", removes selected folder highlighting
@@ -302,6 +334,7 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
 })
 
 
+// Create New Image Listener
 document.getElementById("newImage").addEventListener("click", function (e) {
     console.log("NEW IMAGE CLICK");
     // get selected folder or root

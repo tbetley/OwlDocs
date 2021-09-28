@@ -14,12 +14,22 @@
         </div>
     </div>
     <hr />
-    <div id="content" class="content-mode">
-        @Html.Raw(@Model.Html)
-    </div>
-    <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" class="edit-mode d-none">
-        <textarea id="editTextarea" class="w-100">@Model.Markdown</textarea>
-    </div>
+    @if (Model.Type == DocumentType.Image)
+    {
+        <div>
+            <img class="w-75" src="@($"/Image{Model.Path}")"/>
+        </div>
+    }
+    else
+    {
+        <div id="content" class="content-mode">
+            @Html.Raw(@Model.Html)
+        </div>
+        <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" class="edit-mode d-none">
+            <textarea id="editTextarea" class="w-100">@Model.Markdown</textarea>
+        </div>
+    }
+
 </div>
 
 @section Scripts {

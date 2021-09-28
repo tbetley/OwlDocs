@@ -15,10 +15,12 @@ namespace OwlDocs.Domain.Docs
     {
         private readonly DirectoryInfo _root;
         private readonly MarkdownPipeline _pipeline;
+        private readonly List<string> AcceptedFileTypes;
 
         public FileDocumentService(MarkdownPipeline pipeline, IConfiguration config)
         {
             _root = new DirectoryInfo(config["DocumentProviderSettings:DirectoryRoot"]);
+            AcceptedFileTypes = config.GetSection("AcceptedFileTypes").Get<List<string>>();
             _pipeline = pipeline;
         }
 
@@ -42,6 +44,16 @@ namespace OwlDocs.Domain.Docs
 
                 using var fs = File.Create(absPath);
                 await fs.DisposeAsync();
+            }
+            else if (newDocument.Type == DocumentType.Image)
+            {
+                if (File.Exists(absPath))
+                {
+                    throw new Exception($"A File Already Exists with a Path: {absPath}");
+                }
+
+                await File.WriteAllBytesAsync(absPath, newDocument.Data);
+
             }
             else if (newDocument.Type == DocumentType.Directory)
             {
@@ -89,10 +101,36 @@ namespace OwlDocs.Domain.Docs
             var file = new FileInfo(Path.Combine(_root.FullName, path));
 
             var document = new OwlDocument(file, _root.FullName);
-            document.Markdown = await File.ReadAllTextAsync(file.FullName);
-            document.Html = Markdown.ToHtml(document.Markdown);
-
+            
+            if (AcceptedFileTypes.Contains(file.Extension.ToLower()))
+            {
+                document.Type = DocumentType.Image;
+            }
+            else if (file.Extension == ".md")
+            {
+                document.Markdown = await File.ReadAllTextAsync(file.FullName);
+                document.Html = Markdown.ToHtml(document.Markdown);
+            }
+            
             return document;
+        }
+
+        public async Task<OwlDocument> GetDocumentImage(string path)
+        {
+            var fullPath = Path.Combine(_root.FullName, FormatPath(path));
+            FileInfo imageFile = new FileInfo(fullPath);
+
+            if (!imageFile.Exists)
+            {
+                return null;
+            }
+
+            var doc = new OwlDocument();
+            doc.Name = imageFile.Name;
+            doc.Data = await File.ReadAllBytesAsync(fullPath);
+            doc.Type = DocumentType.Image;
+
+            return doc;
         }
 
         public async Task<DocumentTree> GetDocumentTree()
@@ -142,17 +180,33 @@ namespace OwlDocs.Domain.Docs
 
         private void WalkFiles(DocumentTree tree, DirectoryInfo root)
         {
-            var files = root.GetFiles("*.md");
+            var allFiles = root.GetFiles();
+            var mdFiles = allFiles.Where(f => f.Extension.ToLower() == ".md");
+            var imageFiles = allFiles.Where(f => AcceptedFileTypes.Contains(f.Extension.ToLower()));
+
             var dirs = root.GetDirectories();
 
             // add each file to doc tree
-            foreach (var file in files)
+            foreach (var file in mdFiles)
             {
                 var newDoc = new DocumentTree()
                 {
                     Name = file.Name,
                     Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
                     Type = DocumentType.File
+                };
+
+                tree.Children.Add(newDoc);
+            }
+
+            // add each image to doc tree
+            foreach (var image in imageFiles)
+            {
+                var newDoc = new DocumentTree()
+                {
+                    Name = image.Name,
+                    Path = image.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
+                    Type = DocumentType.Image
                 };
 
                 tree.Children.Add(newDoc);
@@ -173,5 +227,23 @@ namespace OwlDocs.Domain.Docs
                 tree.Children.Add(newDoc);
             }
         }
+
+
+        private static string FormatPath(string path)
+        {
+            if (path[0] == '/')
+            {
+                path = path.Remove(0);
+            }
+
+            if (path[path.Length - 1] == '/')
+            {
+                path = path.Remove(path.Length - 1);
+            }
+
+            return path;
+        }
     }
+
+
 }
