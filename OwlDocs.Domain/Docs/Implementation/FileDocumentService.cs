@@ -73,7 +73,7 @@ namespace OwlDocs.Domain.Docs
         {
             var path = Path.Combine(_root.FullName, document.Path.Remove(0,1));
 
-            if (document.Type == DocumentType.File)
+            if (document.Type == DocumentType.File || document.Type == DocumentType.Image)
             {
                 File.Delete(path);
             }
@@ -153,15 +153,15 @@ namespace OwlDocs.Domain.Docs
             if (document.ParentPath != null &&
                 document.Path.Remove(document.Path.LastIndexOf("/")) != document.ParentPath)
             {
-                var parentPath = Path.Combine(_root.FullName, document.ParentPath.Remove(0,1));
+                var destinationPath = Path.Combine(_root.FullName, document.ParentPath.Remove(0,1));
                 var docPath = Path.Combine(_root.FullName, document.Path.Remove(0, 1));
-                if (document.Type == DocumentType.File)
+                if (document.Type == DocumentType.File || document.Type == DocumentType.Image)
                 {
-                    File.Move(docPath, Path.Combine(parentPath, document.Name));
+                    File.Move(docPath, Path.Combine(destinationPath, document.Name));
                 }
                 else if (document.Type == DocumentType.Directory)
                 {
-                    Directory.Move(docPath, Path.Combine(parentPath, document.Name));
+                    Directory.Move(docPath, Path.Combine(destinationPath, document.Name));
                 }
 
                 return 0;
@@ -170,7 +170,19 @@ namespace OwlDocs.Domain.Docs
 
             // update text 
             var relPath = document.Path.Remove(0, 1);
-            var path = Path.Combine(_root.FullName, relPath);
+            var path = Path.Combine(_root.FullName, relPath).Replace('/', '\\');
+
+            // Get Current Doc file info
+            var oldFile = new FileInfo(path);
+
+            // rename file if name changed
+            if (oldFile.Name != document.Name)
+            {
+                var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
+                oldFile.MoveTo(newPath);
+
+                path = newPath;
+            }
 
             await File.WriteAllTextAsync(path, document.Markdown);
 

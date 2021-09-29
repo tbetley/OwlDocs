@@ -31,6 +31,8 @@ if (showImages) {
     document.getElementById("showImagesCheckbox").checked = true;
 }
 
+
+// Event handler for checkbox to show images
 document.getElementById("showImagesCheckbox").addEventListener("change", function (event) {
     console.log("CHECKED");
 
@@ -102,7 +104,6 @@ function fileDragStart(event) {
     event.dataTransfer.setData("data/type", type);
     event.dataTransfer.setData("data/name", name);
 }
-
 
 // set drap effect when item is over a folder
 function directoryDragOver(event) {
@@ -187,8 +188,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
 // Event listener for "off click", removes selected folder highlighting
 document.addEventListener("click", function (e) {
-    console.log("OFF CLICK");
-    console.log(e.target);
+
     let menu = document.getElementById("menu");
     if (menu.style.display == "block")
         menu.style.display = "none";
@@ -214,7 +214,6 @@ document.addEventListener("click", function (e) {
         e.target.id != "newImage" &&
         e.target.id != "newImageInput") {
 
-        console.log("REMOVING FORM")
         document.getElementById("newFileForm")?.remove();
         document.getElementById("newFolderForm")?.remove();
     }
@@ -226,6 +225,15 @@ document.addEventListener("click", function (e) {
 // Create new file event listener
 document.getElementById("newFile").addEventListener("click", function (e) {
     console.log("NEW FILE CLICK");
+
+    // check if new file/folder input already exists
+    if (document.getElementById("newFileForm")) {
+        return;
+    }
+
+    // remove folder input if it exists
+    document.getElementById("newFolderForm")?.remove();
+    
     // get selected folder or root
     let selectedFolder = document.getElementsByClassName("directory selected")[0];
     console.log(selectedFolder);
@@ -283,7 +291,14 @@ document.getElementById("newFile").addEventListener("click", function (e) {
 document.getElementById("newFolder").addEventListener("click", function (e) {
     // get selected folder or root
     let selectedFolder = document.getElementsByClassName("directory selected")[0];
-    console.log(selectedFolder);
+
+    // check if new folder input already exists
+    if (document.getElementById("newFolderForm")) {
+        return;
+    }
+
+    // remove folder input if it exists
+    document.getElementById("newFileForm")?.remove();
 
     let parentId = 1;
     let parentPath = "/";
@@ -365,7 +380,8 @@ document.getElementById("newImage").addEventListener("click", function (e) {
 document.getElementById("sidebar-items").addEventListener("contextmenu", function (e) {
     e.preventDefault();
 
-    console.log(e.target);
+    // remove existing context menu if it exists
+
 
     // get path, type for selected item
     // get data for file
@@ -394,16 +410,19 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
     document.getElementById("menuPathInput").value = targetElement.getAttribute("data-path");
     document.getElementById("menuTypeInput").value = targetElement.getAttribute("data-type");
     document.getElementById("menuIdInput").value = targetElement.getAttribute("data-id");
-    document.getElementById("menuForm").addEventListener("submit", function (e) {
-        if (!confirm("Are you sure you want to delete this and all child items?"))
-            e.preventDefault();
-    })
 
     // Open menu at click area
     let menu = document.getElementById("menu");
     menu.style.left = `${e.pageX}px`;
     menu.style.top = `${e.pageY}px`;
     menu.style.display = "block";
+})
 
-
+// Validate submission of context menu delete action
+document.getElementById("menuForm").addEventListener("submit", function (e) {
+    if (!confirm("Are you sure you want to delete this and all child items?")) {
+        console.log("CANCELING DELETE");
+        e.preventDefault();
+        return;
+    }
 })

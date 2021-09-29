@@ -3,10 +3,18 @@
     ViewData["Title"] = Model.Name;
 }
 
+@section Css {
+    <link rel="stylesheet" href="~/lib/highlight/styles/dark.min.css" />
+}
+
 <div class="container">
     <div class="row align-items-center justify-content-end">
         <div class="col">
-            <h2>@Model.Name</h2>
+            <h2 id="documentName">@Model.Name</h2>
+            <div id="documentNameDiv" class="d-none">
+                <label for="documentNameInput">Title:</label>
+                <input id="documentNameInput" type="text" value="@Model.Name"/>
+            </div>
         </div>
         <div class="col-auto">
             <button id="toggleEdit" class="btn btn-sm btn-outline-danger">Edit</button>
@@ -22,7 +30,7 @@
     }
     else
     {
-        <div id="content" class="content-mode">
+        <div id="content" class="content-mode markdown">
             @Html.Raw(@Model.Html)
         </div>
         <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" class="edit-mode d-none">
@@ -34,4 +42,6 @@
 
 @section Scripts {
     <script src="~/js/document.js" asp-append-version="true"></script>
+    <script src="~/lib/highlight/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 }

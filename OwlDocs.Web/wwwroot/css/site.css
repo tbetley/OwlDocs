@@ -84,3 +84,17 @@ body {
     .menu-option:hover {
         background: rgba(0, 0, 0, 0.2);
     }
+
+
+.markdown img {
+    max-width: 75%;
+}
+
+
+
+.markdown img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+}

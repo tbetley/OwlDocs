@@ -38,7 +38,7 @@ namespace OwlDocs.Web.Controllers
 
                 await _docSvc.CreateDocument(document);
             }
-            return Ok();
+            return Redirect(Request.Headers["Referer"]);
         }
 
         [Route("{*path}")]
