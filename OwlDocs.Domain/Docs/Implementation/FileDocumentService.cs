@@ -167,24 +167,45 @@ namespace OwlDocs.Domain.Docs
                 return 0;
             }
             
-
-            // update text 
-            var relPath = document.Path.Remove(0, 1);
-            var path = Path.Combine(_root.FullName, relPath).Replace('/', '\\');
-
-            // Get Current Doc file info
-            var oldFile = new FileInfo(path);
-
-            // rename file if name changed
-            if (oldFile.Name != document.Name)
+            if (document.Type == DocumentType.Directory)
             {
-                var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
-                oldFile.MoveTo(newPath);
+                var relPath = document.Path.Remove(0, 1);
+                var path = Path.Combine(_root.FullName, relPath).Replace("/", "\\");
 
-                path = newPath;
+                var oldFolder = new DirectoryInfo(path);
+
+                // rename if name changed
+                if (oldFolder.Name != document.Name)
+                {
+                    var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
+                    oldFolder.MoveTo(newPath);
+
+                    path = newPath;
+                }
+
             }
 
-            await File.WriteAllTextAsync(path, document.Markdown);
+            if (document.Type == DocumentType.File)
+            {
+                // update text 
+                var relPath = document.Path.Remove(0, 1);
+                var path = Path.Combine(_root.FullName, relPath).Replace('/', '\\');
+
+                // Get Current Doc file info
+                var oldFile = new FileInfo(path);
+
+                // rename file if name changed
+                if (oldFile.Name != document.Name)
+                {
+                    var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
+                    oldFile.MoveTo(newPath);
+
+                    path = newPath;
+                }
+
+                await File.WriteAllTextAsync(path, document.Markdown);
+            }
+
 
             return 0;
         }

@@ -1,4 +1,5 @@
-﻿
+﻿let RENAME_TARGET = null;
+
 // Event Listenter for opening Folders and Highlighting current selection
 let directories = document.getElementsByClassName("directory");
 Array.from(directories).forEach(function (element) {
@@ -212,10 +213,17 @@ document.addEventListener("click", function (e) {
         e.target.id != "newFolder" &&
         e.target.id != "newFolderInput" &&
         e.target.id != "newImage" &&
-        e.target.id != "newImageInput") {
+        e.target.id != "newImageInput" &&
+        e.target.id != "menuRename") {
 
         document.getElementById("newFileForm")?.remove();
         document.getElementById("newFolderForm")?.remove();
+
+        if (document.getElementById("renameForm")) {
+            document.getElementById("renameForm").previousElementSibling.classList.remove("d-none");
+            document.getElementById("renameForm").remove();
+
+        }
     }
 
 
@@ -380,8 +388,9 @@ document.getElementById("newImage").addEventListener("click", function (e) {
 document.getElementById("sidebar-items").addEventListener("contextmenu", function (e) {
     e.preventDefault();
 
-    // remove existing context menu if it exists
-
+    // remove existing state
+    document.getElementById("menuRename").classList.add("d-none");
+    RENAME_TARGET = null;
 
     // get path, type for selected item
     // get data for file
@@ -411,11 +420,66 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
     document.getElementById("menuTypeInput").value = targetElement.getAttribute("data-type");
     document.getElementById("menuIdInput").value = targetElement.getAttribute("data-id");
 
+    // turn on rename if targer is folder
+    if (targetElement.getAttribute("data-type") == "2") {
+
+        document.getElementById("menuRename").classList.remove("d-none");
+
+        RENAME_TARGET = targetElement;
+    }
+
+
     // Open menu at click area
     let menu = document.getElementById("menu");
     menu.style.left = `${e.pageX}px`;
     menu.style.top = `${e.pageY}px`;
     menu.style.display = "block";
+})
+
+
+document.getElementById("menuRename").addEventListener("click", function (e) {
+    console.log("rename event");
+    console.log(e);
+    console.log(RENAME_TARGET);
+
+    // create form + add event listener on rename target
+    // create form to submit to create new document
+    let form = document.createElement("form");
+    form.id = "renameForm";
+    form.method = "post";
+    form.action = "/Docs"; // TODO - get from asp tags
+
+    let nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.id = "renameNameInput";
+    nameInput.name = "Name";
+    nameInput.value = RENAME_TARGET.getAttribute("data-name");
+
+    let typeInput = document.createElement("input");
+    typeInput.type = "hidden";
+    typeInput.name = "Type";
+    typeInput.value = "Directory";
+
+    let pathInput = document.createElement("input");
+    pathInput.type = "hidden";
+    pathInput.name = "Path";
+    pathInput.value = RENAME_TARGET.getAttribute("data-path");
+
+    let idInput = document.createElement("input");
+    idInput.type = "hidden";
+    idInput.name = "Id";
+    idInput.value = RENAME_TARGET.getAttribute("data-id");
+
+    form.appendChild(nameInput);
+    form.appendChild(typeInput);
+    form.appendChild(pathInput);
+    form.appendChild(idInput);
+
+    // 
+    RENAME_TARGET.parentElement.appendChild(form);
+    nameInput.focus();
+
+    RENAME_TARGET.classList.add("d-none");
 })
 
 // Validate submission of context menu delete action

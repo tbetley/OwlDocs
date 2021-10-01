@@ -52,13 +52,14 @@
 
 @*Context menu*@
 <div id="menu" class="menu">
-    <div class="menu-options">
+    <div class="d-flex">
         <form id="menuForm" asp-controller="Docs" asp-action="DeleteDocument" method="post">
             <input id="menuPathInput" type="hidden" name="Path" value="" />
             <input id="menuTypeInput" type="hidden" name="Type" value="" />
             <input id="menuIdInput" type="hidden" name="Id" value="" />
-            <input type="submit" class="menu-option" value="Delete" />
+            <input type="submit" class="btn btn-sm btn-danger" value="Delete" />
         </form>
+        <button id="menuRename" class="btn btn-success btn-sm d-none">Rename</button>
     </div>
 </div>
 
