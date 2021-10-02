@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Serilog;
+using Serilog.Events;
+
 using OwlDocs.Data;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,15 +19,35 @@ namespace OwlDocs.Web
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .CreateLogger();
 
-            SeedDatabase(host);
+            try
+            {
+                var host = CreateHostBuilder(args).Build();
 
-            host.Run();
+                SeedDatabase(host);
+
+                host.Run();
+
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, "Host Failed on Startup");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

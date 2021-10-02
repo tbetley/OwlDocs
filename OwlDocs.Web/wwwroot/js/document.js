@@ -70,6 +70,7 @@ const saveDocument = async function () {
     data.Markdown = textarea.value;
     data.Name = nameInput.value.trim();
     data.Path = editContent.getAttribute("data-path");
+    data.Type = Number.parseInt(editContent.getAttribute("data-type"));
     console.log(data);
 
     const result = await fetch("/Docs", {

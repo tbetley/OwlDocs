@@ -110,6 +110,7 @@ namespace OwlDocs.Domain.Docs
             {
                 document.Markdown = await File.ReadAllTextAsync(file.FullName);
                 document.Html = Markdown.ToHtml(document.Markdown);
+                document.Type = DocumentType.File;
             }
             
             return document;

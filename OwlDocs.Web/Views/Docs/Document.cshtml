@@ -33,7 +33,7 @@
         <div id="content" class="content-mode markdown">
             @Html.Raw(@Model.Html)
         </div>
-        <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" class="edit-mode d-none">
+        <div id="edit" data-id="@Model.Id" data-parent-id="@Model.ParentId" data-name="@Model.Name" data-path="@Model.Path" data-type="@Model.Type.ToString("D")" class="edit-mode d-none">
             <textarea id="editTextarea" class="w-100">@Model.Markdown</textarea>
         </div>
     }
