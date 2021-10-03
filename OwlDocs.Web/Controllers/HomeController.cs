@@ -7,16 +7,19 @@ using System.Threading.Tasks;
 using OwlDocs.Models;
 using OwlDocs.Domain.Docs;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace OwlDocs.Web.Controllers
 {
     public class HomeController : Controller
     {
         private readonly IDocumentService _docSvc;
+        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(IDocumentService docSvc)
+        public HomeController(IDocumentService docSvc, ILogger<HomeController> logger)
         {
             _docSvc = docSvc;
+            _logger = logger;
         }
 
 
@@ -33,17 +36,37 @@ namespace OwlDocs.Web.Controllers
         }
 
         [Route("/error")]
-        public IActionResult Error()
+        public IActionResult Error(Error error)
         {
-            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            var viewModel = new Error
+            Error viewModel = null;
+
+            if (error != null)
             {
-                RequestId = HttpContext.TraceIdentifier,
-                ExceptionMessage = exceptionHandlerFeature?.Error?.Message
-            };
+                viewModel = new Error();
+                viewModel.ExceptionMessage = error.ExceptionMessage;
+                viewModel.RequestId = HttpContext.TraceIdentifier;
+            }
+            else
+            {
+                var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            return View(viewModel);
+                if (exceptionHandlerFeature.Error != null)
+                {
+                    viewModel = new Error();
+                    viewModel.ExceptionMessage = exceptionHandlerFeature?.Error?.Message;
+                    viewModel.RequestId = HttpContext.TraceIdentifier;
+                }                
+            }
+
+            if (viewModel != null)
+            {
+                return View(viewModel);
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
     }
 }

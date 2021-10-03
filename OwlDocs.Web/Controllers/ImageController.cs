@@ -11,7 +11,7 @@ using System.IO;
 
 namespace OwlDocs.Web.Controllers
 {
-    [Route("Image")]
+    [Route("Images")]
     public class ImageController : Controller
     {
         private readonly IDocumentService _docSvc;

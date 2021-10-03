@@ -1,4 +1,7 @@
 ﻿let RENAME_TARGET = null;
+const ROOT = 0;
+const FILE = 1;
+const DIRECTORY = 2;
 
 // Event Listenter for opening Folders and Highlighting current selection
 let directories = document.getElementsByClassName("directory");
@@ -53,6 +56,25 @@ document.getElementById("showImagesCheckbox").addEventListener("change", functio
         localStorage.setItem("showImages", "false");
     }
 })
+
+// Alerting function
+function alert(type, message) {
+    let messageDiv = document.getElementById("messageDiv");
+    messageDiv.innerHTML = "";
+
+    let alertDiv = document.createElement("div");
+    alertDiv.classList.add("alert", `alert-${type}`, "alert-dismissible");
+    alertDiv.textContent = message;
+
+    let close = document.createElement("button");
+    close.type = "button";
+    close.classList.add("btn-close");
+    close.setAttribute("data-bs-dismiss", "alert");
+
+    alertDiv.appendChild(close);
+
+    messageDiv.appendChild(alertDiv);
+}
 
 // drag start functions
 function directoryDragStart(event) {
@@ -226,6 +248,10 @@ document.addEventListener("click", function (e) {
         }
     }
 
+    let contexts = document.getElementsByClassName("context-selected");
+    Array.from(contexts).forEach(function (e) {
+        e.classList.remove("context-selected");
+    })
 
 })
 
@@ -389,6 +415,11 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
     e.preventDefault();
 
     // remove existing state
+    let contexts = document.getElementsByClassName("context-selected");
+    Array.from(contexts).forEach(function (e) {
+        e.classList.remove("context-selected");
+    })
+
     document.getElementById("menuRename").classList.add("d-none");
     RENAME_TARGET = null;
 
@@ -414,6 +445,7 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
 
     console.log("TARGET:");
     console.log(targetElement);
+    targetElement.classList.add("context-selected");
 
     // set menu delete button values
     document.getElementById("menuPathInput").value = targetElement.getAttribute("data-path");
@@ -421,7 +453,7 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
     document.getElementById("menuIdInput").value = targetElement.getAttribute("data-id");
 
     // turn on rename if targer is folder
-    if (targetElement.getAttribute("data-type") == "2") {
+    if (targetElement.getAttribute("data-type") == DIRECTORY) {
 
         document.getElementById("menuRename").classList.remove("d-none");
 
@@ -437,9 +469,8 @@ document.getElementById("sidebar-items").addEventListener("contextmenu", functio
 })
 
 
-document.getElementById("menuRename").addEventListener("click", function (e) {
+document.getElementById("menuRename").addEventListener("click", async function (e) {
     console.log("rename event");
-    console.log(e);
     console.log(RENAME_TARGET);
 
     // create form + add event listener on rename target
@@ -448,6 +479,7 @@ document.getElementById("menuRename").addEventListener("click", function (e) {
     form.id = "renameForm";
     form.method = "post";
     form.action = "/Docs"; // TODO - get from asp tags
+    form.style.display = "inline";
 
     let nameInput = document.createElement("input");
     nameInput.type = "text";
@@ -458,7 +490,7 @@ document.getElementById("menuRename").addEventListener("click", function (e) {
     let typeInput = document.createElement("input");
     typeInput.type = "hidden";
     typeInput.name = "Type";
-    typeInput.value = "Directory";
+    typeInput.value = DIRECTORY;
 
     let pathInput = document.createElement("input");
     pathInput.type = "hidden";
@@ -468,15 +500,44 @@ document.getElementById("menuRename").addEventListener("click", function (e) {
     let idInput = document.createElement("input");
     idInput.type = "hidden";
     idInput.name = "Id";
-    idInput.value = RENAME_TARGET.getAttribute("data-id");
+    idInput.value = parseInt(RENAME_TARGET.getAttribute("data-id"));
 
     form.appendChild(nameInput);
     form.appendChild(typeInput);
     form.appendChild(pathInput);
     form.appendChild(idInput);
 
-    // 
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const entries = formData.entries();
+        const data = Object.fromEntries(entries);
+
+        data.Id = parseInt(data.Id);
+        data.Type = parseInt(data.Type);
+
+        const result = await fetch("/Docs", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        console.log(result);
+        if (result.ok) {
+            location.reload();
+        }
+        else {
+            let error = await result.text();
+            alert("danger", error);
+        }
+    })
+    
     RENAME_TARGET.parentElement.appendChild(form);
+
+
     nameInput.focus();
 
     RENAME_TARGET.classList.add("d-none");
@@ -490,3 +551,4 @@ document.getElementById("menuForm").addEventListener("submit", function (e) {
         return;
     }
 })
+

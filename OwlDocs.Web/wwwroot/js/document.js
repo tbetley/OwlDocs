@@ -62,6 +62,8 @@ document.getElementById("saveEdit").addEventListener("click", async function (e)
 
 // Send updated document to server and reload the page to get updated html
 const saveDocument = async function () {
+    document.getElementById("messageDiv").innerHTML = "";
+
     const editContent = document.getElementById("edit");
     const nameInput = document.getElementById("documentNameInput");
 
@@ -71,7 +73,6 @@ const saveDocument = async function () {
     data.Name = nameInput.value.trim();
     data.Path = editContent.getAttribute("data-path");
     data.Type = Number.parseInt(editContent.getAttribute("data-type"));
-    console.log(data);
 
     const result = await fetch("/Docs", {
         method: "PUT",
@@ -85,6 +86,8 @@ const saveDocument = async function () {
         location.reload();
     }
     else {
-        alert(result.statusText);
+        let messageText = await result.text();
+
+        alert("danger", messageText);
     }
 }

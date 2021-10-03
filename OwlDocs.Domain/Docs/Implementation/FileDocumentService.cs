@@ -15,12 +15,14 @@ namespace OwlDocs.Domain.Docs
     {
         private readonly DirectoryInfo _root;
         private readonly MarkdownPipeline _pipeline;
-        private readonly List<string> AcceptedFileTypes;
+        private readonly List<string> AcceptedTextFileTypes;
+        private readonly List<string> AcceptedImageFileTypes;
 
         public FileDocumentService(MarkdownPipeline pipeline, IConfiguration config)
         {
             _root = new DirectoryInfo(config["DocumentProviderSettings:DirectoryRoot"]);
-            AcceptedFileTypes = config.GetSection("AcceptedFileTypes").Get<List<string>>();
+            AcceptedImageFileTypes = config.GetSection("AcceptedImageFileTypes").Get<List<string>>();
+            AcceptedTextFileTypes = config.GetSection("AcceptedTextFileTypes").Get<List<string>>();
             _pipeline = pipeline;
         }
 
@@ -40,6 +42,18 @@ namespace OwlDocs.Domain.Docs
                 if (File.Exists(absPath))
                 {
                     throw new Exception($"A File Already Exists With a Path: {absPath}");
+                }
+
+                int extIndex = newDocument.Name.LastIndexOf('.');
+                if (extIndex < 0)
+                {
+                    throw new Exception($"File Type not allowed");
+                }
+
+                string extension = newDocument.Name.Substring(extIndex);
+                if (!AcceptedTextFileTypes.Contains(extension))
+                {
+                    throw new Exception($"File Type: {extension} is not allowed");
                 }
 
                 using var fs = File.Create(absPath);
@@ -100,9 +114,12 @@ namespace OwlDocs.Domain.Docs
             path = path.Remove(0, 1);
             var file = new FileInfo(Path.Combine(_root.FullName, path));
 
+            if (!file.Exists)
+                throw new Exception("File Does Not Exist");
+
             var document = new OwlDocument(file, _root.FullName);
             
-            if (AcceptedFileTypes.Contains(file.Extension.ToLower()))
+            if (AcceptedImageFileTypes.Contains(file.Extension.ToLower()))
             {
                 document.Type = DocumentType.Image;
             }
@@ -181,7 +198,7 @@ namespace OwlDocs.Domain.Docs
                     var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
                     oldFolder.MoveTo(newPath);
 
-                    path = newPath;
+                    document.Path = newPath;
                 }
 
             }
@@ -199,6 +216,24 @@ namespace OwlDocs.Domain.Docs
                 if (oldFile.Name != document.Name)
                 {
                     var newPath = Path.Combine(path.Remove(path.LastIndexOf('\\')), document.Name);
+
+                    if (File.Exists(newPath))
+                    {
+                        throw new Exception($"A File Already Exists With a Path: {newPath}");
+                    }
+
+                    int extIndex = document.Name.LastIndexOf('.');
+                    if (extIndex < 0)
+                    {
+                        throw new Exception($"File Type not allowed");
+                    }
+
+                    string extension = document.Name.Substring(extIndex);
+                    if (!AcceptedTextFileTypes.Contains(extension))
+                    {
+                        throw new Exception($"File Type: {extension} is not allowed");
+                    }
+
                     oldFile.MoveTo(newPath);
 
                     path = newPath;
@@ -215,8 +250,8 @@ namespace OwlDocs.Domain.Docs
         private void WalkFiles(DocumentTree tree, DirectoryInfo root)
         {
             var allFiles = root.GetFiles();
-            var mdFiles = allFiles.Where(f => f.Extension.ToLower() == ".md");
-            var imageFiles = allFiles.Where(f => AcceptedFileTypes.Contains(f.Extension.ToLower()));
+            var mdFiles = allFiles.Where(f => AcceptedTextFileTypes.Contains(f.Extension.ToLower()));
+            var imageFiles = allFiles.Where(f => AcceptedImageFileTypes.Contains(f.Extension.ToLower()));
 
             var dirs = root.GetDirectories();
 

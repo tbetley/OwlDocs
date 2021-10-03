@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace OwlDocs.Web.Controllers
 {
@@ -14,10 +15,12 @@ namespace OwlDocs.Web.Controllers
     public class DocsController : Controller
     {
         private readonly IDocumentService _docSvc;
+        private readonly ILogger<DocsController> _logger;
 
-        public DocsController(IDocumentService docSvc)
+        public DocsController(IDocumentService docSvc, ILogger<DocsController> logger)
         {
             _docSvc = docSvc;
+            _logger = logger;
         }
 
 
@@ -25,11 +28,19 @@ namespace OwlDocs.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Document(string path)
         {
-            var document = await _docSvc.GetDocumentByPath("/" + path);
+            OwlDocument document;
+            try
+            {
+                document = await _docSvc.GetDocumentByPath("/" + path);
+            }
+            catch (Exception e)
+            {
+                return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
+            }
 
             if (document.Type == DocumentType.Directory)
             {
-                return BadRequest();
+                return RedirectToAction("Error", "Home", new Error { ExceptionMessage = "Cannot Navigate to a Directory" });
             }
 
             ViewData["Path"] = document.Path;
@@ -48,11 +59,12 @@ namespace OwlDocs.Web.Controllers
             try
             {
                 result = await _docSvc.CreateDocument(document);
-
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                _logger.LogError(e, "Create Document Error");
+
+                return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
             }
 
             if (document.Type == DocumentType.File)
@@ -74,20 +86,25 @@ namespace OwlDocs.Web.Controllers
         /// <param name="document"></param>
         /// <returns></returns>
         [Route("")]
-        [HttpPut]
+        [HttpPut]        
         public async Task<IActionResult> UpdateDocument([FromBody] OwlDocument document)
         {
             if (document == null)
-                return BadRequest("Invalid Document Input");
+            {
+                _logger.LogError("Update Document Error, document is null");
+
+                return BadRequest("Error, document is null or incorrect format");
+            }
 
             try
             {
-                var result = await _docSvc.UpdateDocument(document);
-                
+                var result = await _docSvc.UpdateDocument(document);                
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                _logger.LogError(e, "Update Document Error");
+
+                return BadRequest("Error" + e.Message);
             }
 
             return Ok();
@@ -105,9 +122,7 @@ namespace OwlDocs.Web.Controllers
             }
             catch (Exception e)
             {
-                // log
-
-                // throw for error handling middleware
+                _logger.LogError(e, "Error Deleting Document");
                 throw new Exception("Error Deleting Document");
             }
 

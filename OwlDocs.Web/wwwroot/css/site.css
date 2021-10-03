@@ -59,6 +59,10 @@ body {
     background-color: darksalmon;
 }
 
+.context-selected {
+    background-color: silver;
+}
+
 
 .menu {
     width: auto;

@@ -8,6 +8,9 @@
 }
 
 <div class="container">
+    <div id="messageDiv">
+
+    </div>
     <div class="row align-items-center justify-content-end">
         <div class="col">
             <h2 id="documentName">@Model.Name</h2>
@@ -25,7 +28,7 @@
     @if (Model.Type == DocumentType.Image)
     {
         <div>
-            <img class="w-75" src="@($"/Image{Model.Path}")"/>
+            <img class="w-75" src="@($"/Images{Model.Path}")"/>
         </div>
     }
     else

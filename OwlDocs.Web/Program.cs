@@ -12,6 +12,7 @@ using Serilog.Events;
 
 using OwlDocs.Data;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace OwlDocs.Web
 {
@@ -19,10 +20,14 @@ namespace OwlDocs.Web
     {
         public static void Main(string[] args)
         {
+            var configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
+                    .Build();
+
             Log.Logger = new LoggerConfiguration()
-                    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                    .Enrich.FromLogContext()
-                    .WriteTo.Console()
+                    .ReadFrom.Configuration(configuration)
                     .CreateLogger();
 
             try
