@@ -11,17 +11,22 @@ namespace OwlDocs.Web.ViewComponents
     public class TreeViewComponent : ViewComponent
     {
         private readonly IDocumentService _docSvc;
+        private IDocumentCache _cache;
 
-        public TreeViewComponent(IDocumentService docSvc)
+        public TreeViewComponent(IDocumentService docSvc, IDocumentCache cache)
         {
             _docSvc = docSvc;
+            _cache = cache;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var tree = await _docSvc.GetDocumentTree();
+            if (_cache.Tree == null || _cache.Tree.Children.Count == 0)
+            {
+                _cache.Tree = await _docSvc.GetDocumentTree();
+            }
 
-            return View(tree);
+            return View("SidebarTree", _cache.Tree);
         }
     }
 }

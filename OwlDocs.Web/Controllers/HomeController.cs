@@ -24,7 +24,7 @@ namespace OwlDocs.Web.Controllers
 
 
         [Route("/")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return View();
         }
@@ -41,7 +41,7 @@ namespace OwlDocs.Web.Controllers
 
             Error viewModel = null;
 
-            if (error != null)
+            if (error.ExceptionMessage != null)
             {
                 viewModel = new Error();
                 viewModel.ExceptionMessage = error.ExceptionMessage;

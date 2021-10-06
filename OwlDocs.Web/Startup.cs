@@ -14,6 +14,7 @@ using Markdig;
 
 using OwlDocs.Data;
 using OwlDocs.Domain.Docs;
+using OwlDocs.Models;
 
 namespace OwlDocs.Web
 {
@@ -50,6 +51,8 @@ namespace OwlDocs.Web
                 services.AddScoped<IDocumentService, FileDocumentService>();
             }
 
+            services.AddSingleton<IDocumentCache, DocumentCache>();
+
             // Add asp.net core required services
             services.AddMvc();
 
@@ -57,8 +60,10 @@ namespace OwlDocs.Web
         }
 
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDocumentCache cache, IDocumentService docSvc)
         {
+            cache.Tree = docSvc.GetDocumentTree().Result;
+
             if (env.IsDevelopment())
             {
                 //app.UseDeveloperExceptionPage();

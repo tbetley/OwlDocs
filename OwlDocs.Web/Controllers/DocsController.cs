@@ -8,6 +8,9 @@ using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using OwlDocs.Web.ViewModels;
+
+using System.Diagnostics;
 
 namespace OwlDocs.Web.Controllers
 {
@@ -16,11 +19,13 @@ namespace OwlDocs.Web.Controllers
     {
         private readonly IDocumentService _docSvc;
         private readonly ILogger<DocsController> _logger;
+        private IDocumentCache _cache;
 
-        public DocsController(IDocumentService docSvc, ILogger<DocsController> logger)
+        public DocsController(IDocumentService docSvc, ILogger<DocsController> logger, IDocumentCache cache)
         {
             _docSvc = docSvc;
             _logger = logger;
+            _cache = cache;
         }
 
 
@@ -28,24 +33,25 @@ namespace OwlDocs.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Document(string path)
         {
-            OwlDocument document;
+            var doc = new OwlDocument();
+          
             try
             {
-                document = await _docSvc.GetDocumentByPath("/" + path);
+                doc = await _docSvc.GetDocumentByPath("/" + path);
             }
             catch (Exception e)
             {
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
             }
 
-            if (document.Type == DocumentType.Directory)
+            if (doc.Type == DocumentType.Directory)
             {
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = "Cannot Navigate to a Directory" });
             }
 
-            ViewData["Path"] = document.Path;
+            ViewData["Path"] = doc.Path;
 
-            return View(document);
+            return View(doc);
         }
 
         [Route("")]
@@ -66,6 +72,9 @@ namespace OwlDocs.Web.Controllers
 
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
             }
+
+            // Update file tree
+            _cache.Tree = await _docSvc.GetDocumentTree();
 
             if (document.Type == DocumentType.File)
             {
@@ -107,6 +116,9 @@ namespace OwlDocs.Web.Controllers
                 return BadRequest("Error" + e.Message);
             }
 
+            // Update document tree
+            _cache.Tree = await _docSvc.GetDocumentTree();
+
             return Ok();
         }
 
@@ -125,6 +137,9 @@ namespace OwlDocs.Web.Controllers
                 _logger.LogError(e, "Error Deleting Document");
                 throw new Exception("Error Deleting Document");
             }
+
+            // Update tree
+            _cache.Tree = await _docSvc.GetDocumentTree();
 
             // redirect to a view
             return Redirect(HttpContext.Request.Headers["Referer"]);
