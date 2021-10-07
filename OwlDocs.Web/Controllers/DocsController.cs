@@ -8,7 +8,6 @@ using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OwlDocs.Web.ViewModels;
 
 using System.Diagnostics;
 
