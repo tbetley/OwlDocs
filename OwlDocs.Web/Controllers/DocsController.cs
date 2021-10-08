@@ -10,9 +10,11 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
+    [Authorize(Policy = "DocUsers")]
     [Route("Docs")]
     public class DocsController : Controller
     {

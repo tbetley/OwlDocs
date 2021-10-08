@@ -102,3 +102,16 @@ body {
     margin-right: auto;
     border: 1px solid black;
 }
+
+
+.markdown table {
+    margin: auto;
+}
+
+.markdown table,tr,td,th {
+    border: 1px solid black;
+}
+
+.markdown td,th {
+    padding: 5px;
+}

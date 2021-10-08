@@ -8,9 +8,11 @@ using OwlDocs.Domain.Docs;
 using OwlDocs.Data;
 using OwlDocs.Models;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
+    [Authorize(Policy = "DocUsers")]
     [Route("Images")]
     public class ImageController : Controller
     {

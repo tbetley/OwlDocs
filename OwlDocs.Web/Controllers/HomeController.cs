@@ -8,9 +8,11 @@ using OwlDocs.Models;
 using OwlDocs.Domain.Docs;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
+    [Authorize(Policy = "DocUsers")]
     public class HomeController : Controller
     {
         private readonly IDocumentService _docSvc;

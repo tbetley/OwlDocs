@@ -15,6 +15,7 @@ using Markdig;
 using OwlDocs.Data;
 using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace OwlDocs.Web
 {
@@ -53,6 +54,14 @@ namespace OwlDocs.Web
 
             services.AddSingleton<IDocumentCache, DocumentCache>();
 
+            // add and configure authentication
+            services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            services.AddAuthorization(options => {
+                options.AddPolicy("DocUsers", policy => {
+                    policy.RequireRole(Configuration.GetValue<string>("AuthorizedUsers"));
+                });
+            });
+
             // Add asp.net core required services
             services.AddMvc();
 
@@ -82,6 +91,7 @@ namespace OwlDocs.Web
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

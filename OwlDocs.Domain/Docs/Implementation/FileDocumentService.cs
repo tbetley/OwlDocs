@@ -126,7 +126,7 @@ namespace OwlDocs.Domain.Docs
             else if (file.Extension == ".md")
             {
                 document.Markdown = await File.ReadAllTextAsync(file.FullName);
-                document.Html = Markdown.ToHtml(document.Markdown);
+                document.Html = Markdown.ToHtml(document.Markdown, _pipeline);
                 document.Type = DocumentType.File;
             }
             
