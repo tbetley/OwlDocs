@@ -9,13 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
+
 using Markdig;
 
 using OwlDocs.Data;
 using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
-using Microsoft.AspNetCore.Server.IISIntegration;
+using OwlDocs.Web.Options;
+using OwlDocs.Models.Options;
+using OwlDocs.Web.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web
 {
@@ -32,10 +37,19 @@ namespace OwlDocs.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // add and validate options
+            services.AddOptions<AuthOptions>()
+                .Bind(Configuration.GetSection(AuthOptions.Authorization))
+                .ValidateDataAnnotations();
+
+            services.AddOptions<DocumentOptions>()
+                .Bind(Configuration.GetSection(DocumentOptions.DocumentSettings))
+                .ValidateDataAnnotations();
+
             // Add markdown services
             services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
-            var docProvider = Configuration["DocumentProvider"];
+            var docProvider = Configuration["DocumentSettings:Provider"];
             if (docProvider == "Database")
             {
                 // add database services
@@ -54,13 +68,24 @@ namespace OwlDocs.Web
 
             services.AddSingleton<IDocumentCache, DocumentCache>();
 
-            // add and configure authentication
-            services.AddAuthentication(IISDefaults.AuthenticationScheme);
-            services.AddAuthorization(options => {
-                options.AddPolicy("DocUsers", policy => {
-                    policy.RequireRole(Configuration.GetValue<string>("AuthorizedUsers"));
-                });
+
+            if (Configuration.GetValue<string>("Authoization:Type") == AuthorizationType.ActiveDirectory.ToString("D"))
+            {
+                services.AddAuthentication(IISDefaults.AuthenticationScheme);
+            }
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthOptions.DocumentReaderPolicy,
+                    policy => policy.Requirements.Add(new DocumentReadersRequirement()));
+
+                options.AddPolicy(AuthOptions.DocumentWritersPolicy,
+                    policy => policy.Requirements.Add(new DocumentWritersRequirement()));
+
             });
+
+            services.AddSingleton<IAuthorizationHandler, DocumentReadersHandler>();
+            services.AddSingleton<IAuthorizationHandler, DocumentWritersHandler>();
 
             // Add asp.net core required services
             services.AddMvc();

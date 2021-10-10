@@ -9,20 +9,21 @@ using Microsoft.Extensions.Configuration;
 
 using Markdig;
 
+using OwlDocs.Models.Options;
+using Microsoft.Extensions.Options;
+
 namespace OwlDocs.Domain.Docs
 {
     public class FileDocumentService : IDocumentService
     {
         private readonly DirectoryInfo _root;
         private readonly MarkdownPipeline _pipeline;
-        private readonly List<string> AcceptedTextFileTypes;
-        private readonly List<string> AcceptedImageFileTypes;
+        private readonly DocumentOptions _options;
 
-        public FileDocumentService(MarkdownPipeline pipeline, IConfiguration config)
+        public FileDocumentService(MarkdownPipeline pipeline, IOptions<DocumentOptions> options)
         {
-            _root = new DirectoryInfo(config["DocumentProviderSettings:DirectoryRoot"]);
-            AcceptedImageFileTypes = config.GetSection("AcceptedImageFileTypes").Get<List<string>>();
-            AcceptedTextFileTypes = config.GetSection("AcceptedTextFileTypes").Get<List<string>>();
+            _options = options.Value;
+            _root = new DirectoryInfo(_options.DirectoryRoot);
             _pipeline = pipeline;
         }
 
@@ -51,7 +52,7 @@ namespace OwlDocs.Domain.Docs
                 }
 
                 string extension = newDocument.Name.Substring(extIndex);
-                if (!AcceptedTextFileTypes.Contains(extension))
+                if (!_options.AcceptedTextFileTypes.Contains(extension))
                 {
                     throw new Exception($"File Type: {extension} is not allowed");
                 }
@@ -119,7 +120,7 @@ namespace OwlDocs.Domain.Docs
 
             var document = new OwlDocument(file, _root.FullName);
             
-            if (AcceptedImageFileTypes.Contains(file.Extension.ToLower()))
+            if (_options.AcceptedImageFileTypes.Contains(file.Extension.ToLower()))
             {
                 document.Type = DocumentType.Image;
             }
@@ -229,7 +230,7 @@ namespace OwlDocs.Domain.Docs
                     }
 
                     string extension = document.Name.Substring(extIndex);
-                    if (!AcceptedTextFileTypes.Contains(extension))
+                    if (!_options.AcceptedTextFileTypes.Contains(extension))
                     {
                         throw new Exception($"File Type: {extension} is not allowed");
                     }
@@ -250,8 +251,8 @@ namespace OwlDocs.Domain.Docs
         private void WalkFiles(DocumentTree tree, DirectoryInfo root)
         {
             var allFiles = root.GetFiles();
-            var mdFiles = allFiles.Where(f => AcceptedTextFileTypes.Contains(f.Extension.ToLower()));
-            var imageFiles = allFiles.Where(f => AcceptedImageFileTypes.Contains(f.Extension.ToLower()));
+            var mdFiles = allFiles.Where(f => _options.AcceptedTextFileTypes.Contains(f.Extension.ToLower()));
+            var imageFiles = allFiles.Where(f => _options.AcceptedImageFileTypes.Contains(f.Extension.ToLower()));
 
             var dirs = root.GetDirectories();
 

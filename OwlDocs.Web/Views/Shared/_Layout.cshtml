@@ -29,7 +29,7 @@
                     </ul>
                 </div>
                 <div class="me-3">
-                    <span>User: @((await _auth.AuthorizeAsync(User, "DocUsers")).Succeeded ? User.Identity.Name : "Unauthorized")</span>
+                    <span>User: @(User.Identity.Name)</span>
                 </div>
             </div>
         </nav>
