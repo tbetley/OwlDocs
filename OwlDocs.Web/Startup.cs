@@ -82,10 +82,14 @@ namespace OwlDocs.Web
                 options.AddPolicy(AuthOptions.DocumentWritersPolicy,
                     policy => policy.Requirements.Add(new DocumentWritersRequirement()));
 
+                options.AddPolicy(AuthOptions.SiteAdminPolicy,
+                    policy => policy.Requirements.Add(new SiteAdminRequirement()));
+
             });
 
             services.AddSingleton<IAuthorizationHandler, DocumentReadersHandler>();
             services.AddSingleton<IAuthorizationHandler, DocumentWritersHandler>();
+            services.AddSingleton<IAuthorizationHandler, SiteAdminHandler>();
 
             // Add asp.net core required services
             services.AddMvc();

@@ -16,6 +16,9 @@ namespace OwlDocs.Web.Options
 
         public const string DocumentWritersPolicy = "DocumentWritersPolicy";
         public List<string> DocumentWriters { get; set; }
+
+        public const string SiteAdminPolicy = "SiteAdminPolicy";
+        public List<string> SiteAdmins { get; set; }
     }
 
     public enum AuthorizationType { Anonymous, ActiveDirectory }
