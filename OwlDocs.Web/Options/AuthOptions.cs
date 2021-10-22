@@ -10,14 +10,8 @@ namespace OwlDocs.Web.Options
     {
         public const string Authorization = "Authorization";
         public AuthorizationType Type { get; set; }
-
-        public const string DocumentReaderPolicy = "DocumentReaderPolicy";
         public List<string> DocumentReaders { get; set; }
-
-        public const string DocumentWritersPolicy = "DocumentWritersPolicy";
         public List<string> DocumentWriters { get; set; }
-
-        public const string SiteAdminPolicy = "SiteAdminPolicy";
         public List<string> SiteAdmins { get; set; }
     }
 

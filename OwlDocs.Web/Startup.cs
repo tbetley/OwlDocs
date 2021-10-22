@@ -46,6 +46,10 @@ namespace OwlDocs.Web
                 .Bind(Configuration.GetSection(DocumentOptions.DocumentSettings))
                 .ValidateDataAnnotations();
 
+            services.AddOptions<SiteOptions>()
+                .Bind(Configuration.GetSection(SiteOptions.SiteSettings))
+                .ValidateDataAnnotations();
+
             // Add markdown services
             services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
@@ -76,20 +80,20 @@ namespace OwlDocs.Web
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(AuthOptions.DocumentReaderPolicy,
+                options.AddPolicy(Policies.DocumentReadersPolicy,
                     policy => policy.Requirements.Add(new DocumentReadersRequirement()));
 
-                options.AddPolicy(AuthOptions.DocumentWritersPolicy,
+                options.AddPolicy(Policies.DocumentWritersPolicy,
                     policy => policy.Requirements.Add(new DocumentWritersRequirement()));
 
-                options.AddPolicy(AuthOptions.SiteAdminPolicy,
-                    policy => policy.Requirements.Add(new SiteAdminRequirement()));
+                options.AddPolicy(Policies.SiteAdminsPolicy,
+                    policy => policy.Requirements.Add(new SiteAdminsRequirement()));
 
             });
 
             services.AddSingleton<IAuthorizationHandler, DocumentReadersHandler>();
             services.AddSingleton<IAuthorizationHandler, DocumentWritersHandler>();
-            services.AddSingleton<IAuthorizationHandler, SiteAdminHandler>();
+            services.AddSingleton<IAuthorizationHandler, SiteAdminsHandler>();
 
             // Add asp.net core required services
             services.AddMvc();

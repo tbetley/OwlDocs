@@ -1,20 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Options
+@using OwlDocs.Web.Authorization
+@using OwlDocs.Web.Options
 @inject IAuthorizationService _auth
+@inject IOptions<SiteOptions> site
+@{
+    bool isAdmin = (await _auth.AuthorizeAsync(User, Policies.SiteAdminsPolicy)).Succeeded;
+    var _site = site.Value;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    @await RenderSectionAsync("Css", required: false) 
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Css", required: false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">OwlDocs</a>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">@_site.SiteTitle</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -29,6 +37,10 @@
                     </ul>
                 </div>
                 <div class="me-3">
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="Admin" asp-action="Index">Admin</a>
+                    }
                     <span>User: @(User.Identity.Name)</span>
                 </div>
             </div>
@@ -64,11 +76,11 @@
                     <div class="modal-body">
                         <div>
                             <label for="fileUploadParentPath" class="form-label">Parent Path:</label>
-                            <input id="fileUploadParentPath" name="ParentPath" class="form-control" type="text" value="" readonly/>
+                            <input id="fileUploadParentPath" name="ParentPath" class="form-control" type="text" value="" readonly />
                             <label for="fileUploadParentId" class="form-label">Parent Id:</label>
                             <input id="fileUploadParentId" name="ParentId" class="form-control" type="text" value="" readonly />
                             <label for="fileUpload" class="form-label">Image:</label>
-                            <input id="fileUpload" name="Files" type="file" class="form-control" /> 
+                            <input id="fileUpload" name="Files" type="file" class="form-control" />
                         </div>
                     </div>
                     <div class="modal-footer">

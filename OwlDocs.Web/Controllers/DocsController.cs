@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using OwlDocs.Domain.Docs;
 using OwlDocs.Models;
-using OwlDocs.Web.Options;
+using OwlDocs.Web.Authorization;
 
 using System.IO;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
-    [Authorize(Policy = AuthOptions.DocumentReaderPolicy)]
+    [Authorize(Policy = Policies.DocumentReadersPolicy)]
     [Route("Docs")]
     public class DocsController : Controller
     {

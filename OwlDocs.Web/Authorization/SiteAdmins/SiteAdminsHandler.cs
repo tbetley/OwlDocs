@@ -9,17 +9,17 @@ using OwlDocs.Web.Options;
 
 namespace OwlDocs.Web.Authorization
 {
-    public class SiteAdminHandler : AuthorizationHandler<SiteAdminRequirement>
+    public class SiteAdminsHandler : AuthorizationHandler<SiteAdminsRequirement>
     {
         private readonly AuthOptions _authOptions;
 
-        public SiteAdminHandler(IOptions<AuthOptions> authOptions)
+        public SiteAdminsHandler(IOptions<AuthOptions> authOptions)
         {
             _authOptions = authOptions.Value;
         }
 
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SiteAdminRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SiteAdminsRequirement requirement)
         {
             if (_authOptions.Type == AuthorizationType.Anonymous)
             {

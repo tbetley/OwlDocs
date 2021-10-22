@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using OwlDocs.Models;
 using OwlDocs.Domain.Docs;
-using OwlDocs.Web.Options;
+using OwlDocs.Web.Authorization;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
-    [Authorize(Policy = AuthOptions.DocumentReaderPolicy)]
+    [Authorize(Policy = Policies.DocumentReadersPolicy)]
     public class HomeController : Controller
     {
         private readonly IDocumentService _docSvc;

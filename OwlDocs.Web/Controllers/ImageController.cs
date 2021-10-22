@@ -10,11 +10,11 @@ using OwlDocs.Models;
 using System.IO;
 using Microsoft.AspNetCore.Authorization;
 
-using OwlDocs.Web.Options;
+using OwlDocs.Web.Authorization;
 
 namespace OwlDocs.Web.Controllers
 {
-    [Authorize(Policy = AuthOptions.DocumentReaderPolicy)]
+    [Authorize(Policy = Policies.DocumentReadersPolicy)]
     [Route("Images")]
     public class ImageController : Controller
     {
@@ -28,7 +28,7 @@ namespace OwlDocs.Web.Controllers
 
         [Route("")]
         [HttpPost]
-        [Authorize(Policy = AuthOptions.DocumentWritersPolicy)]
+        [Authorize(Policy = Policies.DocumentWritersPolicy)]
         public async Task<IActionResult> CreateImage(OwlDocument document)
         {
             if (Request.Form.Files != null)

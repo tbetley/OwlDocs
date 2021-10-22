@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace OwlDocs.Web.Authorization
 {
-    public class SiteAdminRequirement : IAuthorizationRequirement
+    public class SiteAdminsRequirement : IAuthorizationRequirement
     {
     }
 }

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 using Markdig;
 
@@ -129,6 +128,11 @@ namespace OwlDocs.Domain.Docs
                 document.Markdown = await File.ReadAllTextAsync(file.FullName);
                 document.Html = Markdown.ToHtml(document.Markdown, _pipeline);
                 document.Type = DocumentType.File;
+            }
+            else if (_options.AcceptedTextFileTypes.Contains(file.Extension.ToLower()))
+            {
+                document.Type = DocumentType.File;
+                document.Html = await File.ReadAllTextAsync(file.FullName);
             }
             
             return document;
