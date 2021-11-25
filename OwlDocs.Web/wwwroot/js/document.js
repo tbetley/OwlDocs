@@ -1,4 +1,6 @@
 ﻿let textarea = document.getElementById("editTextarea");
+textarea.style.minHeight = "200px";
+textarea.style.overflow = "hidden";
 
 // Show/Hide textarea for editing
 document.getElementById("toggleEdit").addEventListener("click", function (e) {
@@ -11,8 +13,7 @@ document.getElementById("toggleEdit").addEventListener("click", function (e) {
 
     if (this.textContent == "Edit") {
         this.textContent = "Cancel";
-        textarea.style.height = "";
-        textarea.style.height = (textarea.scrollHeight + 100) + "px";
+        textarea.style.height = (textarea.scrollHeight) + "px";
     }
     else
         this.textContent = "Edit";
@@ -20,8 +21,18 @@ document.getElementById("toggleEdit").addEventListener("click", function (e) {
 
 // Adjust textarea height based on content 
 textarea?.addEventListener("input", function (e) {
-    this.style.height = "";
-    this.style.height = (this.scrollHeight + 100) + "px";
+    console.log("Adjusting textarea size and scrolling");
+
+    // save scrollLeft and scrollTop to prevent screen jump on resize
+    let scrollLeft = window.pageXOffset || (document.documentElement || document.parentNode || document.body).scrollLeft;
+    let scrollTop = window.pageYOffset || (document.documentElement || document.parentNode || document.body).scrollTop;
+
+    //this.style.height = "";
+    this.style.height = (this.scrollHeight) + "px";
+    
+
+    console.log(`ScrollLeft ${scrollLeft}; ScrollTop ${scrollTop}`);
+    window.scrollTo(scrollLeft, scrollTop);
 })
 
 // CTRL+S for saving while in textarea
