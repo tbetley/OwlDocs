@@ -30,7 +30,7 @@ namespace OwlDocs.Web
     public class Program
     {
         public static void Main(string[] args)
-        {
+        {   
             // Set up early logging to catch if Host fails to build/run
             var configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
