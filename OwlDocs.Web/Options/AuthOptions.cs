@@ -8,7 +8,7 @@ namespace OwlDocs.Web.Options
 {
     public class AuthOptions
     {
-        public const string Authorization = "Authorization";
+        public const string AuthSettings = "AuthSettings";
         public AuthorizationType Type { get; set; }
         public List<string> DocumentReaders { get; set; }
         public List<string> DocumentWriters { get; set; }

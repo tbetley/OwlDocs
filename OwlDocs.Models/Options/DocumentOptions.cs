@@ -11,6 +11,8 @@ namespace OwlDocs.Models.Options
     public class DocumentOptions
     {
         public const string DocumentSettings = "DocumentSettings";
+        public const string Database = "Database";
+        public const string File = "File";
 
         [Required]
         public string Provider { get; set; }

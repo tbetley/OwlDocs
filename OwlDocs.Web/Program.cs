@@ -36,7 +36,7 @@ namespace OwlDocs.Web
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
                     .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", true)
-                    .Build();
+                    .Build();                    
 
             Log.Logger = new LoggerConfiguration()
                     .ReadFrom.Configuration(configuration)
@@ -47,15 +47,15 @@ namespace OwlDocs.Web
                 var builder = WebApplication.CreateBuilder(args);
 
                 // Add Options 
-                builder.Services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.Authorization));
+                builder.Services.AddOptions<AuthOptions>().Bind(configuration.GetSection(AuthOptions.AuthSettings));
                 builder.Services.AddOptions<DocumentOptions>().Bind(configuration.GetSection(DocumentOptions.DocumentSettings));
                 builder.Services.AddOptions<SiteOptions>().Bind(configuration.GetSection(SiteOptions.SiteSettings));
 
                 // Add 3rd party services
                 builder.Services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
-                
+                                
                 var docProvider = configuration["DocumentSettings:Provider"];
-                if (docProvider == "Database")
+                if (docProvider == DocumentOptions.Database)
                 {
                     // add database services
                     builder.Services.AddDbContext<OwlDocsContext>(options =>
@@ -65,14 +65,13 @@ namespace OwlDocs.Web
 
                     builder.Services.AddScoped<IDocumentService, DbDocumentService>();
                 }
-                else if (docProvider == "File")
+                else if (docProvider == DocumentOptions.File)
                 {
                     // add file services
                     builder.Services.AddScoped<IDocumentService, FileDocumentService>();
                 }
 
                 builder.Services.AddSingleton<IDocumentCache, DocumentCache>();
-
 
                 if (configuration.GetValue<string>("Authoization:Type") == AuthorizationType.ActiveDirectory.ToString("D"))
                 {
@@ -140,12 +139,12 @@ namespace OwlDocs.Web
         private static void SeedDatabase(IHost host)
         {
             using var scope = host.Services.CreateScope();
-
             var services = scope.ServiceProvider;
 
             var config = services.GetRequiredService<IConfiguration>();
+            var docSettings = services.GetRequiredService<DocumentOptions>();
 
-            if (config["DocumentProvider"] == "Database")
+            if (docSettings.Provider == DocumentOptions.Database)
             {
                 var context = services.GetRequiredService<OwlDocsContext>();
                 context.Database.EnsureCreated();

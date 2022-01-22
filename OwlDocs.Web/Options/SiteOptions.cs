@@ -7,7 +7,7 @@ namespace OwlDocs.Web.Options
 {
     public class SiteOptions
     {
-        public const string SiteSettings = "Site";
+        public const string SiteSettings = "SiteSettings";
         public string SiteTitle { get; set; }
     }
 }
