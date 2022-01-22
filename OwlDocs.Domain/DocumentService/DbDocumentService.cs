@@ -12,7 +12,7 @@ using OwlDocs.Models;
 using OwlDocs.Data;
 using Microsoft.Extensions.Configuration;
 
-namespace OwlDocs.Domain.Docs
+namespace OwlDocs.Domain.DocumentService
 {
     public class DbDocumentService : IDocumentService
     {
@@ -27,10 +27,10 @@ namespace OwlDocs.Domain.Docs
             _config = config;
         }
 
-        public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
+        public async Task<Document> CreateDocument(Document newDocument)
         {
             // get parent path
-            var parentPath = await _dbContext.OwlDocuments
+            var parentPath = await _dbContext.Documents
                 .Where(d => d.Id == newDocument.ParentId)
                 .Select(o => o.Path)
                 .FirstAsync();
@@ -47,7 +47,7 @@ namespace OwlDocs.Domain.Docs
             }
 
             // validate that a document does not exist with that same path
-            var duplicate = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Path == newDocument.Path);
+            var duplicate = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Path == newDocument.Path);
 
             if (duplicate != null)
             {
@@ -55,17 +55,17 @@ namespace OwlDocs.Domain.Docs
             }
 
             // insert
-            var val = await _dbContext.OwlDocuments.AddAsync(newDocument);
+            var val = await _dbContext.Documents.AddAsync(newDocument);
             await _dbContext.SaveChangesAsync();
 
             return val.Entity;
         }
 
 
-        public async Task<int> DeleteDocument(OwlDocument document)
+        public async Task<int> DeleteDocument(Document document)
         {
             // check that document exists
-            var entity = await _dbContext.OwlDocuments.FindAsync(document.Id);
+            var entity = await _dbContext.Documents.FindAsync(document.Id);
 
             if (entity == null)
             {
@@ -73,7 +73,7 @@ namespace OwlDocs.Domain.Docs
             }
 
             // check for children
-            var children = await _dbContext.OwlDocuments.Where(d => d.ParentId == document.Id).ToListAsync();
+            var children = await _dbContext.Documents.Where(d => d.ParentId == document.Id).ToListAsync();
 
             // recursively delete children
             if (children != null)
@@ -85,27 +85,27 @@ namespace OwlDocs.Domain.Docs
             }
 
             // delete
-            _dbContext.OwlDocuments.Remove(entity);
+            _dbContext.Documents.Remove(entity);
             return await _dbContext.SaveChangesAsync();
         }
 
 
-        public async Task<OwlDocument> GetDocumentById(int id)
+        public async Task<Document> GetDocumentById(int id)
         {
-            var document = await _dbContext.OwlDocuments.FindAsync(id);
+            var document = await _dbContext.Documents.FindAsync(id);
 
             return document;
         }
 
 
-        public async Task<OwlDocument> GetDocumentByPath(string path)
+        public async Task<Document> GetDocumentByPath(string path)
         {
-            var document = await _dbContext.OwlDocuments.Where(d => d.Path == path).FirstAsync();
+            var document = await _dbContext.Documents.Where(d => d.Path == path).FirstAsync();
 
             return document;
         }
 
-        public async Task<OwlDocument> GetDocumentImage(string path)
+        public async Task<Document> GetDocumentImage(string path)
         {
             var imageDoc = await GetDocumentByPath(FormatPath(path));
 
@@ -114,7 +114,7 @@ namespace OwlDocs.Domain.Docs
 
         public async Task<DocumentTree> GetDocumentTree()
         {
-            var owlDocs = await _dbContext.OwlDocuments.FromSqlRaw("get_document_hiearchy").ToListAsync();
+            var owlDocs = await _dbContext.Documents.FromSqlRaw("get_document_hiearchy").ToListAsync();
 
             var docTrees = owlDocs
                 .Select(s => new DocumentTree()
@@ -152,7 +152,7 @@ namespace OwlDocs.Domain.Docs
             return documentTree;
         }
 
-        public async Task<int> UpdateDocument(OwlDocument document)
+        public async Task<int> UpdateDocument(Document document)
         {
             // check if parent changed, if so, move item
             if (document.ParentPath != null &&
@@ -161,7 +161,7 @@ namespace OwlDocs.Domain.Docs
                 var newPath = document.ParentPath + "/" + document.Name;
 
                 // check for duplicate
-                var duplicate = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Path == newPath);
+                var duplicate = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Path == newPath);
 
                 if (duplicate != null)
                 {
@@ -169,16 +169,16 @@ namespace OwlDocs.Domain.Docs
                 }
 
                 // get new parent directory
-                var newParent = await _dbContext.OwlDocuments.FirstAsync(d => d.Id == document.ParentId);
+                var newParent = await _dbContext.Documents.FirstAsync(d => d.Id == document.ParentId);
 
                 // update document
-                var updatedDoc = await _dbContext.OwlDocuments.FirstOrDefaultAsync(d => d.Id == document.Id);
+                var updatedDoc = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Id == document.Id);
                 updatedDoc.Path = newPath;
                 updatedDoc.ParentPath = newParent.Path;
                 updatedDoc.ParentId = newParent.Id;
 
                 // get elements that are children of the updated document
-                var children = await _dbContext.OwlDocuments.Where(d => d.ParentId == updatedDoc.Id).ToListAsync();
+                var children = await _dbContext.Documents.Where(d => d.ParentId == updatedDoc.Id).ToListAsync();
 
                 // update children
                 if (children != null && children.Count > 0)
@@ -186,7 +186,7 @@ namespace OwlDocs.Domain.Docs
                     foreach (var child in children)
                     {
                         // create doc object for updating
-                        var updateChild = new OwlDocument();
+                        var updateChild = new Document();
                         updateChild.Id = child.Id;
                         updateChild.Path = child.Path;
                         updateChild.Name = child.Name;
@@ -204,7 +204,7 @@ namespace OwlDocs.Domain.Docs
 
 
             // get entity from db
-            var entity = await _dbContext.OwlDocuments.FirstAsync(i => i.Id == document.Id);
+            var entity = await _dbContext.Documents.FirstAsync(i => i.Id == document.Id);
 
             // update values
             entity.Html = Markdown.ToHtml(document.Markdown, _pipeline);

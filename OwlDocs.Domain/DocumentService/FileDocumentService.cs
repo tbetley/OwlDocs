@@ -11,7 +11,7 @@ using Markdig;
 using OwlDocs.Models.Options;
 using Microsoft.Extensions.Options;
 
-namespace OwlDocs.Domain.Docs
+namespace OwlDocs.Domain.DocumentService
 {
     public class FileDocumentService : IDocumentService
     {
@@ -26,9 +26,9 @@ namespace OwlDocs.Domain.Docs
             _pipeline = pipeline;
         }
 
-        public async Task<OwlDocument> CreateDocument(OwlDocument newDocument)
+        public async Task<Document> CreateDocument(Document newDocument)
         {
-            var document = new OwlDocument();
+            var document = new Document();
 
             var relPath = Path.Combine(newDocument.ParentPath, newDocument.Name);
             document.Path = relPath;
@@ -83,7 +83,7 @@ namespace OwlDocs.Domain.Docs
             return document;
         }
 
-        public Task<int> DeleteDocument(OwlDocument document)
+        public Task<int> DeleteDocument(Document document)
         {
             var path = Path.Combine(_root.FullName, document.Path.Remove(0,1));
 
@@ -104,12 +104,12 @@ namespace OwlDocs.Domain.Docs
             return Task.FromResult(0);
         }
 
-        public Task<OwlDocument> GetDocumentById(int id)
+        public Task<Document> GetDocumentById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<OwlDocument> GetDocumentByPath(string path)
+        public async Task<Document> GetDocumentByPath(string path)
         {
             path = path.Remove(0, 1);
             var file = new FileInfo(Path.Combine(_root.FullName, path));
@@ -117,7 +117,7 @@ namespace OwlDocs.Domain.Docs
             if (!file.Exists)
                 throw new Exception("File Does Not Exist");
 
-            var document = new OwlDocument(file, _root.FullName);
+            var document = new Document(file, _root.FullName);
             
             if (_options.AcceptedImageFileTypes.Contains(file.Extension.ToLower()))
             {
@@ -138,7 +138,7 @@ namespace OwlDocs.Domain.Docs
             return document;
         }
 
-        public async Task<OwlDocument> GetDocumentImage(string path)
+        public async Task<Document> GetDocumentImage(string path)
         {
             var fullPath = Path.Combine(_root.FullName, FormatPath(path));
             FileInfo imageFile = new FileInfo(fullPath);
@@ -148,7 +148,7 @@ namespace OwlDocs.Domain.Docs
                 return null;
             }
 
-            var doc = new OwlDocument();
+            var doc = new Document();
             doc.Name = imageFile.Name;
             doc.Data = await File.ReadAllBytesAsync(fullPath);
             doc.Type = DocumentType.Image;
@@ -170,7 +170,7 @@ namespace OwlDocs.Domain.Docs
             return rootDocument;
         }
 
-        public async Task<int> UpdateDocument(OwlDocument document)
+        public async Task<int> UpdateDocument(Document document)
         {            
             // check if parent changed, if so, move item
             if (document.ParentPath != null &&
@@ -193,7 +193,11 @@ namespace OwlDocs.Domain.Docs
             if (document.Type == DocumentType.Directory)
             {
                 var relPath = document.Path.Remove(0, 1);
-                var path = Path.Combine(_root.FullName, relPath).Replace("/", "\\");
+                var path = Path.Combine(_root.FullName, relPath);
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    path = path.Replace("/", "\\");
+                }              
 
                 var oldFolder = new DirectoryInfo(path);
 

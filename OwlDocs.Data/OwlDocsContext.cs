@@ -20,7 +20,7 @@ namespace OwlDocs.Data
 
         }
 
-        public DbSet<OwlDocument> OwlDocuments { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
     }
 }

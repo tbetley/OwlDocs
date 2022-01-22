@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using OwlDocs.Domain.Docs;
+using OwlDocs.Domain.DocumentService;
 using OwlDocs.Data;
 using OwlDocs.Models;
 using System.IO;
@@ -29,7 +29,7 @@ namespace OwlDocs.Web.Controllers
         [Route("")]
         [HttpPost]
         [Authorize(Policy = Policies.DocumentWritersPolicy)]
-        public async Task<IActionResult> CreateImage(OwlDocument document)
+        public async Task<IActionResult> CreateImage(Document document)
         {
             if (Request.Form.Files != null)
             {

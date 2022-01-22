@@ -8,15 +8,15 @@ using System.IO;
 
 namespace OwlDocs.Models
 { 
-    public class OwlDocument
+    public class Document
     {
-        public OwlDocument(FileInfo file, string rootPath)
+        public Document(FileInfo file, string rootPath)
         {
             Name = file.Name;
             Path = file.FullName.Replace(rootPath, "").Replace("\\", "/");
         }
 
-        public OwlDocument()
+        public Document()
         {
 
         }

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-using OwlDocs.Domain.Docs;
+using OwlDocs.Domain.DocumentService;
+using OwlDocs.Domain.DocumentCache;
 
 namespace OwlDocs.Web.ViewComponents
 {

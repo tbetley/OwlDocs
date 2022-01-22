@@ -12,14 +12,14 @@ namespace OwlDocs.Data
     {
         public static void InitializeDatabase(OwlDocsContext context)
         {
-            if (context.OwlDocuments.Any())
+            if (context.Documents.Any())
             {
                 return;
             }
 
-            var documents = new OwlDocument[]
+            var documents = new Document[]
             {
-                new OwlDocument
+                new Document
                 {
                     ParentId = null,
                     Path = "/",
@@ -28,7 +28,7 @@ namespace OwlDocs.Data
                     Markdown = null,
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 1,
                     Path = "/Test1.md",
@@ -37,7 +37,7 @@ namespace OwlDocs.Data
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test.",
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 1,
                     Path = "/TestFolder",
@@ -46,7 +46,7 @@ namespace OwlDocs.Data
                     Markdown = null,
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 3,
                     Path = "/TestFolder/test2.md",
@@ -55,7 +55,7 @@ namespace OwlDocs.Data
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test2.",
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 1,
                     Path = "/test3.md",
@@ -64,7 +64,7 @@ namespace OwlDocs.Data
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test2.",
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 3,
                     Path = "/TestFolder/AnotherFolder",
@@ -73,7 +73,7 @@ namespace OwlDocs.Data
                     Markdown = null,
                     Html = null
                 },
-                new OwlDocument
+                new Document
                 {
                     ParentId = 6,
                     Path = "/TestFolder/AnotherFolder/test4.md",
@@ -84,7 +84,7 @@ namespace OwlDocs.Data
                 }
             };
 
-            context.OwlDocuments.AddRange(documents);
+            context.Documents.AddRange(documents);
             context.SaveChanges();
         }
     }

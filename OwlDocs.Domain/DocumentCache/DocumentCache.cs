@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OwlDocs.Domain.Docs
+namespace OwlDocs.Domain.DocumentCache
 {
     public class DocumentCache : IDocumentCache
     {

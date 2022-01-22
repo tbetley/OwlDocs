@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using OwlDocs.Domain.Docs;
+using OwlDocs.Domain.DocumentService;
+using OwlDocs.Domain.DocumentCache;
 using OwlDocs.Models;
 using OwlDocs.Web.Authorization;
 
@@ -36,7 +37,7 @@ namespace OwlDocs.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Document(string path)
         {
-            var doc = new OwlDocument();
+            var doc = new Document();
           
             try
             {
@@ -59,12 +60,12 @@ namespace OwlDocs.Web.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<IActionResult> CreateDocument(OwlDocument document)
+        public async Task<IActionResult> CreateDocument(Document document)
         {
             // validation
 
             // insert
-            OwlDocument result;
+            Document result;
             try
             {
                 result = await _docSvc.CreateDocument(document);
@@ -99,7 +100,7 @@ namespace OwlDocs.Web.Controllers
         /// <returns></returns>
         [Route("")]
         [HttpPut]        
-        public async Task<IActionResult> UpdateDocument([FromBody] OwlDocument document)
+        public async Task<IActionResult> UpdateDocument([FromBody] Document document)
         {
             if (document == null)
             {
@@ -128,7 +129,7 @@ namespace OwlDocs.Web.Controllers
 
         [Route("delete")]
         [HttpPost]
-        public async Task<IActionResult> DeleteDocument(OwlDocument document)
+        public async Task<IActionResult> DeleteDocument(Document document)
         {
             // TODO IMPLEMENT DELETE ACTION
             try

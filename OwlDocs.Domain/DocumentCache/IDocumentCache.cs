@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using OwlDocs.Models;
 
-namespace OwlDocs.Domain.Docs
+namespace OwlDocs.Domain.DocumentCache
 {
     public interface IDocumentCache
     {

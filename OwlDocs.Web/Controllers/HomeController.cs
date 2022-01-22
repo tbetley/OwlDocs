@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using OwlDocs.Models;
-using OwlDocs.Domain.Docs;
+using OwlDocs.Domain.DocumentService;
 using OwlDocs.Web.Authorization;
 
 using Microsoft.AspNetCore.Diagnostics;
