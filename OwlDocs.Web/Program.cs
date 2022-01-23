@@ -102,7 +102,8 @@ namespace OwlDocs.Web
 
                 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-                var app = builder.Build();               
+                var app = builder.Build();
+                SeedDatabase(app);
 
                 var cache = app.Services.GetService<IDocumentCache>();
 
@@ -121,9 +122,7 @@ namespace OwlDocs.Web
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
-                });
-
-                SeedDatabase(app);
+                });                
 
                 app.Run();
             }
