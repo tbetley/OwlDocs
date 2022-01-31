@@ -49,7 +49,7 @@
     public async Task PrintTree(DocumentTree tree, string path)
     {
         <div class="item-group">
-            @if (tree.Type == DocumentType.Root)
+            @if (tree.Type == (int)DocumentType.Root)
             {
                 <div class="directory" draggable="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2 directory-icon" viewBox="0 0 16 16">
@@ -58,7 +58,7 @@
                     <span class="directory-name" data-id="0" data-path="/" data-type="0" data-name="">/</span>
                 </div>
             }
-            @if (tree.Type == DocumentType.Directory)
+            @if (tree.Type == (int)DocumentType.Directory)
             {
                 <div class="directory" draggable="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2 directory-icon" viewBox="0 0 16 16">
@@ -67,13 +67,13 @@
                     <span class="directory-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</span>
                 </div>
             }
-            else if (tree.Type == DocumentType.File)
+            else if (tree.Type == (int)DocumentType.File)
             {
                 <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
                     <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
                 </div>
             }
-            else if (tree.Type == DocumentType.Image)
+            else if (tree.Type == (int)DocumentType.Image)
             {
                 <div class="file image image-hidden @(tree.Path == path ? "selected" : "")" draggable="true">
                     <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
@@ -90,12 +90,12 @@
                     }
                 }                
             }
-            <div class="child-item @active @(tree.Type == DocumentType.Root ? "active" : null)">
+            <div class="child-item @active @(tree.Type == (int)DocumentType.Root ? "active" : null)">
                 @if (tree.Children.Count > 0)
                 {
-                    var files = tree.Children.Where(t => t.Type == DocumentType.File);
-                    var images = tree.Children.Where(t => t.Type == DocumentType.Image);
-                    var directories = tree.Children.Where(t => t.Type == DocumentType.Directory);
+                    var files = tree.Children.Where(t => t.Type == (int)DocumentType.File);
+                    var images = tree.Children.Where(t => t.Type == (int)DocumentType.Image);
+                    var directories = tree.Children.Where(t => t.Type == (int)DocumentType.Directory);
 
                     foreach (var file in files)
                     {

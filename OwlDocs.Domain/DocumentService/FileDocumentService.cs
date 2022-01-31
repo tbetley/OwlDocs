@@ -37,7 +37,7 @@ namespace OwlDocs.Domain.DocumentService
             var absPath = Path.Combine(_root.FullName, relPath);
 
             // check if file already exists at path
-            if (newDocument.Type == DocumentType.File)
+            if (newDocument.Type == (int)DocumentType.File)
             {               
                 if (File.Exists(absPath))
                 {
@@ -59,7 +59,7 @@ namespace OwlDocs.Domain.DocumentService
                 using var fs = File.Create(absPath);
                 await fs.DisposeAsync();
             }
-            else if (newDocument.Type == DocumentType.Image)
+            else if (newDocument.Type == (int)DocumentType.Image)
             {
                 if (File.Exists(absPath))
                 {
@@ -69,7 +69,7 @@ namespace OwlDocs.Domain.DocumentService
                 await File.WriteAllBytesAsync(absPath, newDocument.Data);
 
             }
-            else if (newDocument.Type == DocumentType.Directory)
+            else if (newDocument.Type == (int)DocumentType.Directory)
             {
                 if (Directory.Exists(absPath))
                 {
@@ -87,11 +87,11 @@ namespace OwlDocs.Domain.DocumentService
         {
             var path = Path.Combine(_root.FullName, document.Path.Remove(0,1));
 
-            if (document.Type == DocumentType.File || document.Type == DocumentType.Image)
+            if (document.Type == (int)DocumentType.File || document.Type == (int)DocumentType.Image)
             {
                 File.Delete(path);
             }
-            else if (document.Type == DocumentType.Directory)
+            else if (document.Type == (int)DocumentType.Directory)
             {
                 // recursively delete folder/files
                 Directory.Delete(path, true);
@@ -121,17 +121,17 @@ namespace OwlDocs.Domain.DocumentService
             
             if (_options.AcceptedImageFileTypes.Contains(file.Extension.ToLower()))
             {
-                document.Type = DocumentType.Image;
+                document.Type = (int)DocumentType.Image;
             }
             else if (file.Extension == ".md")
             {
                 document.Markdown = await File.ReadAllTextAsync(file.FullName);
                 document.Html = Markdown.ToHtml(document.Markdown, _pipeline);
-                document.Type = DocumentType.File;
+                document.Type = (int)DocumentType.File;
             }
             else if (_options.AcceptedTextFileTypes.Contains(file.Extension.ToLower()))
             {
-                document.Type = DocumentType.File;
+                document.Type = (int)DocumentType.File;
                 document.Html = await File.ReadAllTextAsync(file.FullName);
             }
             
@@ -151,7 +151,7 @@ namespace OwlDocs.Domain.DocumentService
             var doc = new Document();
             doc.Name = imageFile.Name;
             doc.Data = await File.ReadAllBytesAsync(fullPath);
-            doc.Type = DocumentType.Image;
+            doc.Type = (int)DocumentType.Image;
 
             return doc;
         }
@@ -178,11 +178,11 @@ namespace OwlDocs.Domain.DocumentService
             {
                 var destinationPath = Path.Combine(_root.FullName, document.ParentPath.Remove(0,1));
                 var docPath = Path.Combine(_root.FullName, document.Path.Remove(0, 1));
-                if (document.Type == DocumentType.File || document.Type == DocumentType.Image)
+                if (document.Type == (int)DocumentType.File || document.Type == (int)DocumentType.Image)
                 {
                     File.Move(docPath, Path.Combine(destinationPath, document.Name));
                 }
-                else if (document.Type == DocumentType.Directory)
+                else if (document.Type == (int)DocumentType.Directory)
                 {
                     Directory.Move(docPath, Path.Combine(destinationPath, document.Name));
                 }
@@ -190,7 +190,7 @@ namespace OwlDocs.Domain.DocumentService
                 return 0;
             }
             
-            if (document.Type == DocumentType.Directory)
+            if (document.Type == (int)DocumentType.Directory)
             {
                 var relPath = document.Path.Remove(0, 1);
                 var path = Path.Combine(_root.FullName, relPath);
@@ -212,7 +212,7 @@ namespace OwlDocs.Domain.DocumentService
 
             }
 
-            if (document.Type == DocumentType.File)
+            if (document.Type == (int)DocumentType.File)
             {
                 // update text 
                 var relPath = document.Path.Remove(0, 1);
@@ -271,7 +271,7 @@ namespace OwlDocs.Domain.DocumentService
                 {
                     Name = file.Name,
                     Path = file.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
-                    Type = DocumentType.File
+                    Type = (int)DocumentType.File
                 };
 
                 tree.Children.Add(newDoc);
@@ -284,7 +284,7 @@ namespace OwlDocs.Domain.DocumentService
                 {
                     Name = image.Name,
                     Path = image.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
-                    Type = DocumentType.Image
+                    Type = (int)DocumentType.Image
                 };
 
                 tree.Children.Add(newDoc);
@@ -297,7 +297,7 @@ namespace OwlDocs.Domain.DocumentService
                 {
                     Name = dir.Name,
                     Path = dir.FullName.Replace(_root.FullName, "").Replace("\\", "/"),
-                    Type = DocumentType.Directory
+                    Type = (int)DocumentType.Directory
                 };
 
                 WalkFiles(newDoc, dir);

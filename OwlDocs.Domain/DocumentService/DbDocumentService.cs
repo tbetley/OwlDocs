@@ -30,11 +30,10 @@ namespace OwlDocs.Domain.DocumentService
         public async Task<Document> CreateDocument(Document newDocument)
         {
             // get parent path
-            var parentPath = await _dbContext.Documents
-                .Where(d => d.Id == newDocument.ParentId)
-                .Select(o => o.Path)
-                .FirstAsync();
-            
+            var list = await _dbContext.Documents.Where(d => d.Id == newDocument.ParentId).ToListAsync();
+            /*.Select(o => o.Path)
+            .FirstAsync();*/
+            string parentPath = list.First().Path;
 
             // set new path
             if (parentPath == "/")
@@ -114,23 +113,20 @@ namespace OwlDocs.Domain.DocumentService
 
         public async Task<DocumentTree> GetDocumentTree()
         {
-            var owlDocs = await _dbContext.Documents.FromSqlRaw("get_document_hiearchy").ToListAsync();
-
-            var docTrees = owlDocs
-                .Select(s => new DocumentTree()
-                {
-                    Id = s.Id,
-                    ParentId = s.ParentId,
-                    Name = s.Name,
-                    Path = s.Path,
-                    Type = s.Type
-                }).ToList();                       
+            var docs = await _dbContext.Documents.OrderBy(d => d.ParentId).Select(s => new DocumentTree()
+            {
+                Id = s.Id,
+                ParentId = s.ParentId,
+                Name = s.Name,
+                Path = s.Path,
+                Type = s.Type
+            }).ToListAsync();                
 
             // get root item
             DocumentTree documentTree = null;
 
             // For each document, find it's parent in the tree and add to document tree
-            foreach(var item in docTrees)
+            foreach(var item in docs)
             {
                 // base case, set root (first item)
                 if (item.ParentId == null)

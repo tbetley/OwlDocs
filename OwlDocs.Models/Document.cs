@@ -25,7 +25,7 @@ namespace OwlDocs.Models
         public int? ParentId { get; set; }
         public string Path { get; set; }
         public string ParentPath { get; set; }
-        public DocumentType Type { get; set; }
+        public int Type { get; set; }
         public string Name { get; set; }
         public string Markdown { get; set; }
         public string Html { get; set; }

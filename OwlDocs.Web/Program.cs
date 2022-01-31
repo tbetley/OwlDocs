@@ -57,14 +57,24 @@ namespace OwlDocs.Web
                 builder.Services.AddSingleton(md => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
                                 
                 var docProvider = configuration["DocumentSettings:Provider"];
+                var database = configuration["DocumentSettings:Database"];
                 if (docProvider == DocumentOptions.Database)
                 {
-                    // add database services
-                    builder.Services.AddDbContext<OwlDocsContext>(options =>
+                    if (database == DocumentOptions.SqlServer)
                     {
-                        options.UseSqlServer(configuration.GetConnectionString("TestConnection"));
-                    });
-
+                        builder.Services.AddDbContext<OwlDocsContext>(options =>
+                        {
+                            options.UseSqlServer(configuration.GetConnectionString("TestConnection"));
+                        });
+                    }
+                    else if (database == DocumentOptions.Sqlite)
+                    {
+                        builder.Services.AddDbContext<OwlDocsContext>(options =>
+                        {
+                            options.UseSqlite(configuration.GetConnectionString("SqliteConnection"));
+                        });
+                    }
+                    
                     builder.Services.AddScoped<IDocumentService, DbDocumentService>();
                 }
                 else if (docProvider == DocumentOptions.File)
@@ -148,8 +158,8 @@ namespace OwlDocs.Web
             if (docSettings.Value.Provider == DocumentOptions.Database)
             {
                 var context = services.GetRequiredService<OwlDocsContext>();
-                context.Database.EnsureCreated();
-                DbInitializer.InitializeDatabase(context);
+                context.Database.EnsureCreated();       
+                DbInitializer.InitializeDatabase(context);                
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using OwlDocs.Domain.DocumentService;
+using OwlDocs.Domain.DocumentCache;
 using OwlDocs.Data;
 using OwlDocs.Models;
 using System.IO;
@@ -19,10 +20,12 @@ namespace OwlDocs.Web.Controllers
     public class ImageController : Controller
     {
         private readonly IDocumentService _docSvc;
+        private readonly IDocumentCache _docCache;
 
-        public ImageController(IDocumentService docSvc)
+        public ImageController(IDocumentService docSvc, IDocumentCache cache)
         {
             _docSvc = docSvc;
+            _docCache = cache;
         }
 
 
@@ -39,10 +42,12 @@ namespace OwlDocs.Web.Controllers
                 await Request.Form.Files[0].CopyToAsync(memoryStream);
                 document.Data = memoryStream.ToArray();
                 document.Name = Request.Form.Files[0].FileName;
-                document.Type = DocumentType.Image;
+                document.Type = (int)DocumentType.Image;
 
                 await _docSvc.CreateDocument(document);
+                _docCache.Tree = await _docSvc.GetDocumentTree();
             }
+
             return Redirect(Request.Headers["Referer"]);
         }
 
@@ -57,7 +62,7 @@ namespace OwlDocs.Web.Controllers
                 return NotFound();
             }
 
-            if (imageDoc.Type == DocumentType.Image && imageDoc.Data != null)
+            if (imageDoc.Type == (int)DocumentType.Image && imageDoc.Data != null)
             {
                 return File(imageDoc.Data, "image/png");
             }

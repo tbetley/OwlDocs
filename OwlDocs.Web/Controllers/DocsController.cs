@@ -48,7 +48,7 @@ namespace OwlDocs.Web.Controllers
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
             }
 
-            if (doc.Type == DocumentType.Directory)
+            if (doc.Type == (int)DocumentType.Directory)
             {
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = "Cannot Navigate to a Directory" });
             }
@@ -80,7 +80,7 @@ namespace OwlDocs.Web.Controllers
             // Update file tree
             _cache.Tree = await _docSvc.GetDocumentTree();
 
-            if (document.Type == DocumentType.File)
+            if (document.Type == (int)DocumentType.File)
             {
                 return Redirect("/Docs" + result.Path);
             }

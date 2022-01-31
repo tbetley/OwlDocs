@@ -2,6 +2,7 @@
 const ROOT = 0;
 const FILE = 1;
 const DIRECTORY = 2;
+const IMAGE = 3;
 
 // Event Listenter for opening Folders and Highlighting current selection
 let directories = document.getElementsByClassName("directory");
@@ -308,7 +309,7 @@ document.getElementById("newFile").addEventListener("click", function (e) {
     let typeInput = document.createElement("input");
     typeInput.type = "hidden";
     typeInput.name = "Type";
-    typeInput.value = "File";
+    typeInput.value = FILE;
 
     form.appendChild(nameInput);
     form.appendChild(parentIdInput);
@@ -370,7 +371,7 @@ document.getElementById("newFolder").addEventListener("click", function (e) {
     let typeInput = document.createElement("input");
     typeInput.type = "hidden";
     typeInput.name = "Type";
-    typeInput.value = "Directory";
+    typeInput.value = DIRECTORY;
 
     form.appendChild(nameInput);
     form.appendChild(parentIdInput);

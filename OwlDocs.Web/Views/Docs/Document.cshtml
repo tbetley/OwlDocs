@@ -25,7 +25,7 @@
         </div>
     </div>
     <hr />
-    @if (Model.Type == DocumentType.Image)
+    @if (Model.Type == (int)DocumentType.Image)
     {
         <div>
             <img class="w-75" src="@($"/Images{Model.Path}")"/>

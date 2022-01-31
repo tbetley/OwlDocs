@@ -23,7 +23,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = null,
                     Path = "/",
-                    Type = DocumentType.Root,
+                    Type = (int)DocumentType.Root,
                     Name = null,
                     Markdown = null,
                     Html = null
@@ -32,7 +32,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 1,
                     Path = "/Test1.md",
-                    Type = DocumentType.File,
+                    Type = (int)DocumentType.File,
                     Name = "Test1.md",
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test.",
                     Html = null
@@ -41,7 +41,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 1,
                     Path = "/TestFolder",
-                    Type = DocumentType.Directory,
+                    Type = (int)DocumentType.Directory,
                     Name = "TestFolder",
                     Markdown = null,
                     Html = null
@@ -50,7 +50,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 3,
                     Path = "/TestFolder/test2.md",
-                    Type = DocumentType.File,
+                    Type = (int)DocumentType.File,
                     Name = "test2.md",
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test2.",
                     Html = null
@@ -59,7 +59,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 1,
                     Path = "/test3.md",
-                    Type = DocumentType.File,
+                    Type = (int)DocumentType.File,
                     Name = "test3.md",
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test2.",
                     Html = null
@@ -68,7 +68,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 3,
                     Path = "/TestFolder/AnotherFolder",
-                    Type = DocumentType.Directory,
+                    Type = (int)DocumentType.Directory,
                     Name = "AnotherFolder",
                     Markdown = null,
                     Html = null
@@ -77,7 +77,7 @@ namespace OwlDocs.Data
                 {
                     ParentId = 6,
                     Path = "/TestFolder/AnotherFolder/test4.md",
-                    Type = DocumentType.File,
+                    Type = (int)DocumentType.File,
                     Name = "test4.md",
                     Markdown = "#Test Markdown File\n**Hello there**\nThis is a test4.",
                     Html = null

@@ -3,12 +3,12 @@ CREATE PROCEDURE dbo.get_document_hiearchy
 as
 
 WITH docData AS (
-  (SELECT id, ParentId, Path, ParentPath, Name, Markdown, Html, Type, Data, 1 AS level
-  FROM OwlDocuments
+  (SELECT Id, ParentId, Path, ParentPath, Name, Markdown, Html, Type, Data, 1 AS level
+  FROM Documents
   WHERE id = 1)
   UNION ALL
   (SELECT 
-	this.id, 
+	this.Id, 
 	this.ParentId, 
 	this.Path, 
 	this.ParentPath, 
@@ -19,7 +19,7 @@ WITH docData AS (
 	this.Data,
 	prior.level + 1
   FROM docData prior
-  INNER JOIN OwlDocuments this ON this.ParentId = prior.Id)
+  INNER JOIN Documents this ON this.ParentId = prior.Id)
 )
 SELECT 
 	d.Id, 

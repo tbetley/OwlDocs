@@ -17,7 +17,7 @@ namespace OwlDocs.Data
     {
         public OwlDocsContext(DbContextOptions<OwlDocsContext> options) : base(options)
         {
-
+            
         }
 
         public DbSet<Document> Documents { get; set; }
