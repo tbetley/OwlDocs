@@ -18,13 +18,11 @@ namespace OwlDocs.Domain.DocumentService
     {
         private readonly OwlDocsContext _dbContext;
         private readonly MarkdownPipeline _pipeline;
-        private readonly IConfiguration _config;
 
-        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline, IConfiguration config)
+        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline)
         {
             _dbContext = dbContext;
             _pipeline = pipeline;
-            _config = config;
         }
 
         public async Task<Document> CreateDocument(Document newDocument)

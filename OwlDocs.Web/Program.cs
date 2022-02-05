@@ -64,14 +64,14 @@ namespace OwlDocs.Web
                     {
                         builder.Services.AddDbContext<OwlDocsContext>(options =>
                         {
-                            options.UseSqlServer(configuration.GetConnectionString("TestConnection"));
+                            options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
                         });
                     }
                     else if (database == DocumentOptions.Sqlite)
                     {
                         builder.Services.AddDbContext<OwlDocsContext>(options =>
                         {
-                            options.UseSqlite(configuration.GetConnectionString("SqliteConnection"));
+                            options.UseSqlite(configuration.GetConnectionString("Sqlite"));
                         });
                     }
                     

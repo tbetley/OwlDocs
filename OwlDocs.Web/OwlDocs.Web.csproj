@@ -25,4 +25,8 @@
     <ProjectReference Include="..\OwlDocs.Domain\OwlDocs.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Sqlite\" />
+  </ItemGroup>
+
 </Project>
