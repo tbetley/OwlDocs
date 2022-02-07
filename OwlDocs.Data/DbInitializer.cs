@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using OwlDocs.Models;
+using OwlDocs.Data.Repositories;
 
 namespace OwlDocs.Data
 {
     public class DbInitializer
     {
-        public static void InitializeDatabase(OwlDocsContext context)
+        public static async void InitializeDatabase(ISqliteRepository repo)
         {
-            if (context.Documents.Any())
+            if (await repo.AnyDocuments())
             {
                 return;
             }
@@ -84,8 +85,11 @@ namespace OwlDocs.Data
                 }
             };
 
-            context.Documents.AddRange(documents);
-            context.SaveChanges();
+            foreach (var document in documents)
+            {
+                await repo.CreateDocument(document);
+            }
+
         }
     }
 }

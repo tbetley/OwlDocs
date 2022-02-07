@@ -18,7 +18,6 @@ namespace OwlDocs.Models.Options
 
         // database types
         public const string Sqlite = "Sqlite";
-        public const string SqlServer = "SqlServer";
 
         [Required]
         public string Provider { get; set; }

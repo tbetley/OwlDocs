@@ -47,7 +47,12 @@ namespace OwlDocs.Web.Controllers
                 await _docSvc.CreateDocument(document);
                 _docCache.Tree = await _docSvc.GetDocumentTree();
             }
-
+            else
+            {
+                // return error
+                return BadRequest("Image file not found");
+            }
+            
             return Redirect(Request.Headers["Referer"]);
         }
 

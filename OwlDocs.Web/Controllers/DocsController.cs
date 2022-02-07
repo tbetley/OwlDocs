@@ -42,20 +42,23 @@ namespace OwlDocs.Web.Controllers
             try
             {
                 doc = await _docSvc.GetDocumentByPath("/" + path);
+
+                if (doc == null)
+                    return NotFound();
+
+                if (doc.Type == (int)DocumentType.Directory)
+                {
+                    return RedirectToAction("Error", "Home", new Error { ExceptionMessage = "Cannot Navigate to a Directory" });
+                }
+
+                ViewData["Path"] = doc.Path;
+
+                return View(doc);
             }
             catch (Exception e)
             {
                 return RedirectToAction("Error", "Home", new Error { ExceptionMessage = e.Message });
-            }
-
-            if (doc.Type == (int)DocumentType.Directory)
-            {
-                return RedirectToAction("Error", "Home", new Error { ExceptionMessage = "Cannot Navigate to a Directory" });
-            }
-
-            ViewData["Path"] = doc.Path;
-
-            return View(doc);
+            }            
         }
 
         [Route("")]

@@ -4,34 +4,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
 
 using Markdig;
 
 using OwlDocs.Models;
 using OwlDocs.Data;
+using OwlDocs.Data.Repositories;
 using Microsoft.Extensions.Configuration;
 
 namespace OwlDocs.Domain.DocumentService
 {
     public class DbDocumentService : IDocumentService
     {
-        private readonly OwlDocsContext _dbContext;
+        private readonly ISqliteRepository _sqliteRepo;
         private readonly MarkdownPipeline _pipeline;
 
-        public DbDocumentService(OwlDocsContext dbContext, MarkdownPipeline pipeline)
+        public DbDocumentService(MarkdownPipeline pipeline, ISqliteRepository sqliteRepo)
         {
-            _dbContext = dbContext;
             _pipeline = pipeline;
+            _sqliteRepo = sqliteRepo;
         }
 
         public async Task<Document> CreateDocument(Document newDocument)
         {
-            // get parent path
-            var list = await _dbContext.Documents.Where(d => d.Id == newDocument.ParentId).ToListAsync();
-            /*.Select(o => o.Path)
-            .FirstAsync();*/
-            string parentPath = list.First().Path;
+            var parentDocument = await _sqliteRepo.GetDocumentById((int)newDocument.ParentId);
+            var parentPath = parentDocument.Path;
 
             // set new path
             if (parentPath == "/")
@@ -44,25 +41,24 @@ namespace OwlDocs.Domain.DocumentService
             }
 
             // validate that a document does not exist with that same path
-            var duplicate = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Path == newDocument.Path);
+            var duplicate = await _sqliteRepo.GetDocumentByPath(newDocument.Path);
 
             if (duplicate != null)
             {
                 throw new Exception($"An Item Already Exists With a Path: {newDocument.Path}");
             }
 
-            // insert
-            var val = await _dbContext.Documents.AddAsync(newDocument);
-            await _dbContext.SaveChangesAsync();
+            // insert            
+            var val = await _sqliteRepo.CreateDocument(newDocument);
 
-            return val.Entity;
+            return val;
         }
 
 
         public async Task<int> DeleteDocument(Document document)
         {
             // check that document exists
-            var entity = await _dbContext.Documents.FindAsync(document.Id);
+            var entity = await _sqliteRepo.GetDocumentById(document.Id);
 
             if (entity == null)
             {
@@ -70,7 +66,7 @@ namespace OwlDocs.Domain.DocumentService
             }
 
             // check for children
-            var children = await _dbContext.Documents.Where(d => d.ParentId == document.Id).ToListAsync();
+            var children = await _sqliteRepo.GetDocumentsByParentId(document.Id);
 
             // recursively delete children
             if (children != null)
@@ -82,43 +78,27 @@ namespace OwlDocs.Domain.DocumentService
             }
 
             // delete
-            _dbContext.Documents.Remove(entity);
-            return await _dbContext.SaveChangesAsync();
-        }
+            var val = await _sqliteRepo.DeleteDocumentById(document.Id);
 
-
-        public async Task<Document> GetDocumentById(int id)
-        {
-            var document = await _dbContext.Documents.FindAsync(id);
-
-            return document;
+            return 0;
         }
 
 
         public async Task<Document> GetDocumentByPath(string path)
         {
-            var document = await _dbContext.Documents.Where(d => d.Path == path).FirstAsync();
-
+            var document = await _sqliteRepo.GetDocumentByPath(path);
             return document;
         }
 
         public async Task<Document> GetDocumentImage(string path)
         {
             var imageDoc = await GetDocumentByPath(FormatPath(path));
-
             return imageDoc;
         }
 
         public async Task<DocumentTree> GetDocumentTree()
         {
-            var docs = await _dbContext.Documents.OrderBy(d => d.ParentId).Select(s => new DocumentTree()
-            {
-                Id = s.Id,
-                ParentId = s.ParentId,
-                Name = s.Name,
-                Path = s.Path,
-                Type = s.Type
-            }).ToListAsync();                
+            var docs = await _sqliteRepo.GetOrderedTree();
 
             // get root item
             DocumentTree documentTree = null;
@@ -155,7 +135,7 @@ namespace OwlDocs.Domain.DocumentService
                 var newPath = document.ParentPath + "/" + document.Name;
 
                 // check for duplicate
-                var duplicate = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Path == newPath);
+                var duplicate = await _sqliteRepo.GetDocumentByPath(newPath);
 
                 if (duplicate != null)
                 {
@@ -163,16 +143,16 @@ namespace OwlDocs.Domain.DocumentService
                 }
 
                 // get new parent directory
-                var newParent = await _dbContext.Documents.FirstAsync(d => d.Id == document.ParentId);
+                var newParent = await _sqliteRepo.GetDocumentById((int)document.ParentId);
 
                 // update document
-                var updatedDoc = await _dbContext.Documents.FirstOrDefaultAsync(d => d.Id == document.Id);
+                var updatedDoc = await _sqliteRepo.GetDocumentById(document.Id);
                 updatedDoc.Path = newPath;
                 updatedDoc.ParentPath = newParent.Path;
                 updatedDoc.ParentId = newParent.Id;
 
                 // get elements that are children of the updated document
-                var children = await _dbContext.Documents.Where(d => d.ParentId == updatedDoc.Id).ToListAsync();
+                var children = await _sqliteRepo.GetDocumentsByParentId(updatedDoc.Id);
 
                 // update children
                 if (children != null && children.Count > 0)
@@ -192,20 +172,21 @@ namespace OwlDocs.Domain.DocumentService
                     }
                 }
 
-
-                return await _dbContext.SaveChangesAsync();
+                await _sqliteRepo.UpdateDocument(updatedDoc);
+                return 0;
             }
 
-
             // get entity from db
-            var entity = await _dbContext.Documents.FirstAsync(i => i.Id == document.Id);
+            var entity = await _sqliteRepo.GetDocumentById(document.Id);
 
             // update values
             entity.Html = Markdown.ToHtml(document.Markdown, _pipeline);
             entity.Markdown = document.Markdown;
 
             // save changes
-            return await _dbContext.SaveChangesAsync();
+            await _sqliteRepo.UpdateDocument(entity);
+
+            return 0;
         }
 
 
@@ -238,7 +219,6 @@ namespace OwlDocs.Domain.DocumentService
                 return null;
             }
         }
-
 
         private static string FormatPath(string path)
         {

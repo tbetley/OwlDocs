@@ -12,7 +12,6 @@ namespace OwlDocs.Domain.DocumentService
     {
         Task<DocumentTree> GetDocumentTree();
         Task<Document> GetDocumentByPath(string path);
-        Task<Document> GetDocumentById(int id);
         Task<Document> CreateDocument(Document newDocument);
         Task<Document> GetDocumentImage(string path);
         Task<int> UpdateDocument(Document document);

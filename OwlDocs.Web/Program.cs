@@ -4,28 +4,27 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authorization;
+
+using Markdig;
 
 using Serilog;
 using Serilog.Events;
 
 using OwlDocs.Data;
-using Microsoft.Extensions.DependencyInjection;
-using System.IO;
-using Microsoft.AspNetCore.Builder;
-
 using OwlDocs.Web.Options;
 using OwlDocs.Models.Options;
-
-using Markdig;
-using Microsoft.EntityFrameworkCore;
 using OwlDocs.Domain.DocumentService;
 using OwlDocs.Domain.DocumentCache;
-using Microsoft.AspNetCore.Server.IISIntegration;
 using OwlDocs.Web.Authorization;
-using Microsoft.AspNetCore.Authorization;
+using OwlDocs.Data.Repositories;
 
 namespace OwlDocs.Web
 {
@@ -60,19 +59,9 @@ namespace OwlDocs.Web
                 var database = configuration["DocumentSettings:Database"];
                 if (docProvider == DocumentOptions.Database)
                 {
-                    if (database == DocumentOptions.SqlServer)
+                    if (database == DocumentOptions.Sqlite)
                     {
-                        builder.Services.AddDbContext<OwlDocsContext>(options =>
-                        {
-                            options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
-                        });
-                    }
-                    else if (database == DocumentOptions.Sqlite)
-                    {
-                        builder.Services.AddDbContext<OwlDocsContext>(options =>
-                        {
-                            options.UseSqlite(configuration.GetConnectionString("Sqlite"));
-                        });
+                        builder.Services.AddScoped<ISqliteRepository>(db => new SqliteRepository(configuration.GetConnectionString("Sqlite")));
                     }
                     
                     builder.Services.AddScoped<IDocumentService, DbDocumentService>();
@@ -110,8 +99,6 @@ namespace OwlDocs.Web
                 // Add asp.net core required services
                 builder.Services.AddMvc();
 
-                builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
                 var app = builder.Build();
                 SeedDatabase(app);
 
@@ -147,7 +134,7 @@ namespace OwlDocs.Web
 
         }
 
-        private static void SeedDatabase(IHost host)
+        private static async void SeedDatabase(IHost host)
         {
             using var scope = host.Services.CreateScope();
             var services = scope.ServiceProvider;
@@ -157,9 +144,9 @@ namespace OwlDocs.Web
 
             if (docSettings.Value.Provider == DocumentOptions.Database)
             {
-                var context = services.GetRequiredService<OwlDocsContext>();
-                context.Database.EnsureCreated();       
-                DbInitializer.InitializeDatabase(context);                
+                var sqliteRepo = services.GetRequiredService<ISqliteRepository>();
+                await sqliteRepo.EnsureCreated();
+                DbInitializer.InitializeDatabase(sqliteRepo);                
             }
         }
     }
