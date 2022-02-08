@@ -23,7 +23,7 @@ namespace OwlDocs.Web.Controllers
     {
         private readonly IDocumentService _docSvc;
         private readonly ILogger<DocsController> _logger;
-        private IDocumentCache _cache;
+        private readonly IDocumentCache _cache;
 
         public DocsController(IDocumentService docSvc, ILogger<DocsController> logger, IDocumentCache cache)
         {
@@ -36,12 +36,10 @@ namespace OwlDocs.Web.Controllers
         [Route("{*path}")]
         [HttpGet]
         public async Task<IActionResult> Document(string path)
-        {
-            var doc = new Document();
-          
+        {          
             try
-            {
-                doc = await _docSvc.GetDocumentByPath("/" + path);
+            {                
+                var doc = await _docSvc.GetDocumentByPath("/" + path);
 
                 if (doc == null)
                     return NotFound();

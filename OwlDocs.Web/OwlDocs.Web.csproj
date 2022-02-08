@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <UserSecretsId>5c531874-fdfa-4620-aeac-210ea8da6f68</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
