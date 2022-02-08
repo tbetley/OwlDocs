@@ -116,11 +116,14 @@ namespace OwlDocs.Data.Repositories
                 await reader.ReadAsync(); 
                 var document = new Document();
                 document.Id = reader.GetInt32("Id");
-                document.ParentId = reader.GetInt32("ParentId");
+
+                var parentId = reader.GetValueOrDefault<long?>("ParentId");
+                document.ParentId = parentId == null ? null : (int)parentId;
+
                 document.Path = reader.GetValueOrDefault<string>("Path");
                 document.ParentPath = reader.GetValueOrDefault<string>("ParentPath");
                 document.Type = reader.GetInt32("Type");
-                document.Name = reader.GetString("Name");
+                document.Name = reader.GetValueOrDefault<string>("Name");
                 document.Markdown = reader.GetValueOrDefault<string>("Markdown");
                 document.Html = reader.GetValueOrDefault<string>("Html");
                 document.Data = reader.GetValueOrDefault<byte[]>("Data");

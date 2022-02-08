@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Server.IISIntegration;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authorization;
 
@@ -25,6 +25,7 @@ using OwlDocs.Domain.DocumentService;
 using OwlDocs.Domain.DocumentCache;
 using OwlDocs.Web.Authorization;
 using OwlDocs.Data.Repositories;
+using System.Runtime.InteropServices;
 
 namespace OwlDocs.Web
 {
@@ -76,7 +77,16 @@ namespace OwlDocs.Web
 
                 if (configuration.GetValue<string>("Authoization:Type") == AuthorizationType.ActiveDirectory.ToString("D"))
                 {
-                    builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
+                    builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate(options =>
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                        {
+                            options.EnableLdap(settings =>
+                            {
+                                settings.Domain = "ad.betley.io";                                
+                            });
+                        }
+                    });
                 }
 
                 builder.Services.AddAuthorization(options =>

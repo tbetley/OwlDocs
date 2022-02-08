@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 using Markdig;
 
 using OwlDocs.Models;
 using OwlDocs.Data;
 using OwlDocs.Data.Repositories;
-using Microsoft.Extensions.Configuration;
 
 namespace OwlDocs.Domain.DocumentService
 {
@@ -26,20 +24,27 @@ namespace OwlDocs.Domain.DocumentService
         }
 
         public async Task<Document> CreateDocument(Document newDocument)
-        {
-            var parentDocument = await _sqliteRepo.GetDocumentById((int)newDocument.ParentId);
-            var parentPath = parentDocument.Path;
-
-            // set new path
-            if (parentPath == "/")
+        {            
+            if (newDocument.Type == (int)DocumentType.Root)
             {
-                newDocument.Path = parentPath + newDocument.Name;
-            }
+                newDocument.Path = "/";
+            }          
             else
             {
-                newDocument.Path = parentPath + "/" + newDocument.Name;
-            }
+                var parentDocument = await _sqliteRepo.GetDocumentById((int)newDocument.ParentId);
+                var parentPath = parentDocument.Path;
 
+                // set new path
+                if (parentPath == "/")
+                {
+                    newDocument.Path = parentPath + newDocument.Name;
+                }
+                else
+                {
+                    newDocument.Path = parentPath + "/" + newDocument.Name;
+                }
+            }
+            
             // validate that a document does not exist with that same path
             var duplicate = await _sqliteRepo.GetDocumentByPath(newDocument.Path);
 
