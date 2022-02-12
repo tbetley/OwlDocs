@@ -83,7 +83,7 @@ namespace OwlDocs.Web.Controllers
 
             if (document.Type == (int)DocumentType.File)
             {
-                return Redirect("/Docs" + result.Path);
+                return Redirect("/Docs" + result.UriPath);
             }
             else
             {               

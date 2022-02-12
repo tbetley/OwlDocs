@@ -161,6 +161,8 @@ namespace OwlDocs.Domain.DocumentService
                 updatedDoc.ParentPath = newParent.Path;
                 updatedDoc.ParentId = newParent.Id;
 
+                await _sqliteRepo.UpdateDocument(updatedDoc);
+
                 // get elements that are children of the updated document
                 var children = await _sqliteRepo.GetDocumentsByParentId(updatedDoc.Id);
 
@@ -182,7 +184,6 @@ namespace OwlDocs.Domain.DocumentService
                     }
                 }
 
-                await _sqliteRepo.UpdateDocument(updatedDoc);
                 return 0;
             }
 
