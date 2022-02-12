@@ -38,7 +38,7 @@ namespace OwlDocs.Web.Controllers
         public async Task<IActionResult> Document(string path)
         {          
             try
-            {                
+            {
                 var doc = await _docSvc.GetDocumentByPath("/" + path);
 
                 if (doc == null)

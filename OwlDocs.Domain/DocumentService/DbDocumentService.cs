@@ -33,15 +33,19 @@ namespace OwlDocs.Domain.DocumentService
             {
                 var parentDocument = await _sqliteRepo.GetDocumentById((int)newDocument.ParentId);
                 var parentPath = parentDocument.Path;
+                var parentUriPath = parentDocument.UriPath;
 
                 // set new path
+                var uriPath = Uri.EscapeDataString(newDocument.Name);
                 if (parentPath == "/")
                 {
                     newDocument.Path = parentPath + newDocument.Name;
+                    newDocument.UriPath = parentUriPath + uriPath;
                 }
                 else
                 {
                     newDocument.Path = parentPath + "/" + newDocument.Name;
+                    newDocument.UriPath = parentUriPath + "/" + uriPath;
                 }
             }
             
@@ -137,7 +141,7 @@ namespace OwlDocs.Domain.DocumentService
             if (document.ParentPath != null &&
                 document.Path.Remove(document.Path.LastIndexOf("/")) != document.ParentPath)
             {
-                var newPath = document.ParentPath + "/" + document.Name;
+                var newPath = document.ParentPath + "/" + document.Name;                
 
                 // check for duplicate
                 var duplicate = await _sqliteRepo.GetDocumentByPath(newPath);
@@ -153,6 +157,7 @@ namespace OwlDocs.Domain.DocumentService
                 // update document
                 var updatedDoc = await _sqliteRepo.GetDocumentById(document.Id);
                 updatedDoc.Path = newPath;
+                updatedDoc.UriPath = newParent.UriPath + "/" + Uri.EscapeDataString(document.Name);
                 updatedDoc.ParentPath = newParent.Path;
                 updatedDoc.ParentId = newParent.Id;
 
@@ -187,6 +192,14 @@ namespace OwlDocs.Domain.DocumentService
             // update values
             entity.Html = Markdown.ToHtml(document.Markdown, _pipeline);
             entity.Markdown = document.Markdown;
+            
+            // check rename
+            if (document.Name != entity.Name)
+            {
+                entity.Name = document.Name;
+                entity.Path = document.Path.Remove(document.Path.LastIndexOf('/')) + '/' + document.Name;
+                entity.UriPath = entity.UriPath.Remove(entity.UriPath.LastIndexOf('/')) + '/' + Uri.EscapeDataString(document.Name);
+            }
 
             // save changes
             await _sqliteRepo.UpdateDocument(entity);

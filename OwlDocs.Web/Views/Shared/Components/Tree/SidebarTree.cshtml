@@ -70,13 +70,13 @@
             else if (tree.Type == (int)DocumentType.File)
             {
                 <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
-                    <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
+                    <a href="@("/Docs" + tree.UriPath)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
                 </div>
             }
             else if (tree.Type == (int)DocumentType.Image)
             {
                 <div class="file image image-hidden @(tree.Path == path ? "selected" : "")" draggable="true">
-                    <a href="@("/Docs" + tree.Path)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
+                    <a href="@("/Docs" + tree.UriPath)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
                 </div>
             }
 

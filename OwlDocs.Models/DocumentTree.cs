@@ -12,6 +12,7 @@ namespace OwlDocs.Models
         public int? ParentId { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
+        public string UriPath { get; set; }
         public int Type { get; set; }
         public List<DocumentTree> Children = new();
     }

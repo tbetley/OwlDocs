@@ -44,14 +44,15 @@ namespace OwlDocs.Data.Repositories
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                INSERT INTO Documents (ParentId, Path, ParentPath, Type, Name, Markdown, Html, Data)
-                VALUES ($parentId, $path, $parentPath, $type, $name, $markdown, $html, $data);
+                INSERT INTO Documents (ParentId, Path, UriPath, ParentPath, Type, Name, Markdown, Html, Data)
+                VALUES ($parentId, $path, $uriPath, $parentPath, $type, $name, $markdown, $html, $data);
             ";
 
             var parameters = new SqliteParameter[]
             {
                 new SqliteParameter("$parentId", document.ParentId == null ? DBNull.Value : document.ParentId),
                 new SqliteParameter("$path", document.Path),
+                new SqliteParameter("$uriPath", document.UriPath),
                 new SqliteParameter("$parentPath", document.ParentPath == null ? DBNull.Value : document.ParentPath),
                 new SqliteParameter("$type", document.Type),
                 new SqliteParameter("$name", document.Name == null ? DBNull.Value : document.Name),
@@ -80,6 +81,7 @@ namespace OwlDocs.Data.Repositories
                     'Id' INTEGER NOT NULL CONSTRAINT 'PK_Documents' PRIMARY KEY AUTOINCREMENT,
                     'ParentId' INTEGER NULL,
                     'Path' TEXT NULL,
+                    'UriPath' TEXT NULL,
                     'ParentPath' TEXT NULL,
                     'Type' INTEGER NOT NULL,
                     'Name' TEXT NULL,
@@ -102,7 +104,7 @@ namespace OwlDocs.Data.Repositories
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                SELECT Id, ParentId, Path, ParentPath, Type, Name, Markdown, Html, Data
+                SELECT Id, ParentId, Path, UriPath, ParentPath, Type, Name, Markdown, Html, Data
                 FROM Documents
                 WHERE Path = $path
             ";
@@ -121,6 +123,7 @@ namespace OwlDocs.Data.Repositories
                 document.ParentId = parentId == null ? null : (int)parentId;
 
                 document.Path = reader.GetValueOrDefault<string>("Path");
+                document.UriPath = reader.GetValueOrDefault<string>("UriPath");
                 document.ParentPath = reader.GetValueOrDefault<string>("ParentPath");
                 document.Type = reader.GetInt32("Type");
                 document.Name = reader.GetValueOrDefault<string>("Name");
@@ -144,7 +147,7 @@ namespace OwlDocs.Data.Repositories
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                SELECT Id, ParentId, Path, ParentPath, Type, Name, Markdown, Html, Data
+                SELECT Id, ParentId, Path, UriPath, ParentPath, Type, Name, Markdown, Html, Data
                 FROM Documents
                 WHERE Id = $id
             ";
@@ -163,6 +166,7 @@ namespace OwlDocs.Data.Repositories
                 document.ParentId = parentId == null ? null : (int)parentId;
                 
                 document.Path = reader.GetValueOrDefault<string>("Path");
+                document.UriPath = reader.GetValueOrDefault<string>("UriPath");
                 document.ParentPath = reader.GetValueOrDefault<string>("ParentPath");
                 document.Type = reader.GetInt32("Type");
                 document.Name = reader.GetValueOrDefault<string>("Name");
@@ -186,7 +190,7 @@ namespace OwlDocs.Data.Repositories
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                SELECT Id, ParentId, Path, ParentPath, Type, Name, Markdown, Html, Data
+                SELECT Id, ParentId, Path, UriPath, ParentPath, Type, Name, Markdown, Html, Data
                 FROM Documents
                 WHERE ParentId = $parentId
             ";
@@ -208,6 +212,7 @@ namespace OwlDocs.Data.Repositories
                     document.ParentId = pId == null ? null : (int)pId;
 
                     document.Path = reader.GetValueOrDefault<string>("Path");
+                    document.UriPath = reader.GetValueOrDefault<string>("UriPath");
                     document.ParentPath = reader.GetValueOrDefault<string>("ParentPath");
                     document.Type = reader.GetInt32("Type");
                     document.Name = reader.GetValueOrDefault<string>("Name");
@@ -237,6 +242,7 @@ namespace OwlDocs.Data.Repositories
                 UPDATE Documents SET
                 ParentId = $parentId, 
                  Path = $path, 
+                 UriPath = $uriPath,
                  ParentPath = $parentPath, 
                  Type = $type, 
                  Name = $name, 
@@ -250,6 +256,7 @@ namespace OwlDocs.Data.Repositories
             {
                 new SqliteParameter("$parentId", document.ParentId == null ? DBNull.Value : document.ParentId),
                 new SqliteParameter("$path", document.Path),
+                new SqliteParameter("$uriPath", document.UriPath),
                 new SqliteParameter("$parentPath", document.ParentPath == null ? DBNull.Value : document.ParentPath),
                 new SqliteParameter("$type", document.Type),
                 new SqliteParameter("$name", document.Name == null ? DBNull.Value : document.Name),
@@ -275,7 +282,7 @@ namespace OwlDocs.Data.Repositories
             var command = connection.CreateCommand();
             command.CommandText =
             @"
-                SELECT Id, ParentId, Path, Type, Name
+                SELECT Id, ParentId, Path, UriPath, Type, Name
                 FROM Documents
                 ORDER BY ParentId
             ";
@@ -293,6 +300,7 @@ namespace OwlDocs.Data.Repositories
                     var parentId = reader.GetValueOrDefault<long?>("ParentId");
                     document.ParentId = parentId == null ? null : (int)parentId;
                     document.Path = reader.GetValueOrDefault<string>("Path");
+                    document.UriPath = reader.GetValueOrDefault<string>("UriPath");
                     document.Type = reader.GetInt32("Type");
                     document.Name = reader.GetValueOrDefault<string>("Name");
 
