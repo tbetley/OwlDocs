@@ -132,6 +132,7 @@ namespace OwlDocs.Web
                 });                
 
                 app.Run();
+                
             }
             catch (Exception e)
             {
@@ -156,7 +157,7 @@ namespace OwlDocs.Web
             {
                 var sqliteRepo = services.GetRequiredService<ISqliteRepository>();
                 await sqliteRepo.EnsureCreated();
-                DbInitializer.InitializeDatabase(sqliteRepo);                
+                await DbInitializer.InitializeDatabase(sqliteRepo);                
             }
         }
     }

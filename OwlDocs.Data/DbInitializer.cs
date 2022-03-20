@@ -11,7 +11,7 @@ namespace OwlDocs.Data
 {
     public class DbInitializer
     {
-        public static async void InitializeDatabase(ISqliteRepository repo)
+        public static async Task InitializeDatabase(ISqliteRepository repo)
         {
             if (await repo.AnyDocuments())
             {

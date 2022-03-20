@@ -2,9 +2,12 @@
 @using Microsoft.Extensions.Options
 @using OwlDocs.Web.Authorization
 @using OwlDocs.Web.Options
-@using OwlDocs.Web.ViewComponents;
+@using OwlDocs.Domain.DocumentCache;
+@using OwlDocs.Domain.DocumentService;
 @inject IAuthorizationService _auth
 @inject IOptions<SiteOptions> site
+@inject IDocumentCache _cache;
+@inject IDocumentService _docSvc;
 @{
     bool isAdmin = (await _auth.AuthorizeAsync(User, Policies.SiteAdminsPolicy)).Succeeded;
     var _site = site.Value;
@@ -52,15 +55,59 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-auto">
-                @await Component.InvokeAsync(ViewComponents.Tree)
+                @{
+                    if (_cache.Tree == null || _cache.Tree.Children.Count == 0)
+                    {
+                        _cache.Tree = await _docSvc.GetDocumentTree();
+                    }
+
+                    var path = ViewData["path"] as string;
+                }
+
+                @*Side bar*@
+                <div class="sidebar">
+                    <div class="d-md-none">
+                        <button data-bs-toggle="collapse" data-bs-target="#collapseSidebar" type="button" class="btn btn-outline-primary">Open</button>
+                    </div>
+                    <div class="collapse d-md-block" id="collapseSidebar">
+                        <div class="mb-2">
+                            <button id="newFile" class="btn btn-sm btn-outline-primary mr-2">+ File</button>
+                            <button id="newFolder" class="btn btn-sm btn-outline-dark">+ Folder</button>
+                            <button id="newImage" class="btn btn-sm btn-outline-success">+ Image</button>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="showImagesCheckbox">
+                            <label class="form-check-label" for="showImagesCheckbox">
+                                Show Images
+                            </label>
+                        </div>
+                        <div id="sidebar-items">
+                            @{
+                                await PrintTree(_cache.Tree, path);
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @*Context menu*@
+                <div id="menu" class="menu">
+                    <div class="d-flex border border-2 border-rounded">
+                        <form id="menuForm" asp-controller="Docs" asp-action="DeleteDocument" method="post">
+                            <input id="menuPathInput" type="hidden" name="Path" value="" />
+                            <input id="menuTypeInput" type="hidden" name="Type" value="" />
+                            <input id="menuIdInput" type="hidden" name="Id" value="" />
+                            <input type="submit" class="btn btn-sm btn-outline-danger" value="Delete" />
+                        </form>
+                        <button id="menuRename" class="btn btn-outline-success btn-sm d-none">Rename</button>
+                    </div>
+                </div>
+
             </div>
             <div class="col mt-3 mt-md-0">
                 @RenderBody()
             </div>
         </div>
     </div>
-
-
 
     <footer class="border-top footer text-muted">
         <div class="container">
@@ -101,3 +148,80 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+
+@*
+    Prints the provided document tree
+*@
+@functions {
+    public async Task PrintTree(DocumentTree tree, string path)
+    {
+        <div class="item-group">            
+            @if (tree.Type == (int)DocumentType.Root)
+            {
+                <div class="directory" draggable="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2 directory-icon" viewBox="0 0 16 16">
+                        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
+                    </svg>
+                    <span class="directory-name" data-id="@tree.Id" data-path="/" data-type="0" data-name="">/</span>
+                </div>
+            }
+            @if (tree.Type == (int)DocumentType.Directory)
+            {
+                <div class="directory" draggable="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder2 directory-icon" viewBox="0 0 16 16">
+                        <path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9zM2.5 3a.5.5 0 0 0-.5.5V6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.82 3 5.264 3H2.5zM14 7H2v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7z" />
+                    </svg>
+                    <span class="directory-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</span>
+                </div>
+            }
+            else if (tree.Type == (int)DocumentType.File)
+            {
+                <div class="file @(tree.Path == path ? "selected" : "")" draggable="true">
+                    <a href="@("/Docs" + tree.UriPath)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
+                </div>
+            }
+            else if (tree.Type == (int)DocumentType.Image)
+            {
+                <div class="file image image-hidden @(tree.Path == path ? "selected" : "")" draggable="true">
+                    <a href="@("/Docs" + tree.UriPath)" class="file-name" data-id="@tree.Id" data-path="@tree.Path" data-type="@tree.Type.ToString("D")" data-name="@tree.Name">@tree.Name</a>
+                </div>
+            }
+            
+            @{
+                string active = "";
+                if (path != null)
+                {
+                    if (path.Contains(tree.Path))
+                    {
+                        active = "active";
+                    }
+                }                
+            }
+            <div class="child-item @active @(tree.Type == (int)DocumentType.Root ? "active" : null)">
+                @if (tree.Children.Count > 0)
+                {
+                    var files = tree.Children.Where(t => t.Type == (int)DocumentType.File);
+                    var images = tree.Children.Where(t => t.Type == (int)DocumentType.Image);
+                    var directories = tree.Children.Where(t => t.Type == (int)DocumentType.Directory);
+
+                    foreach (var file in files)
+                    {
+                        await PrintTree(file, path);
+                    }
+
+                    foreach (var image in images)
+                    {
+                        await PrintTree(image, path);
+                    }
+
+                    foreach (var dir in directories)
+                    {
+                        await PrintTree(dir, path);
+                    }
+                }
+            </div>
+        </div>
+    }
+}

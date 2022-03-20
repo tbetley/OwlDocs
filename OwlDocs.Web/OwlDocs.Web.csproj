@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Sqlite\" />
+    <Folder Include="Views\Shared\Components\" />
   </ItemGroup>
 
 </Project>

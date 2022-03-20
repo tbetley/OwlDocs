@@ -27,4 +27,10 @@
     <ProjectReference Include="..\OwlDocs.Models\OwlDocs.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestAssets\tengyart-CQQHCHRludA-unsplash.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -31,6 +31,11 @@ namespace OwlDocs.Domain.DocumentService
             }          
             else
             {
+                // required elements of document
+                // name
+                // parentId
+                // type
+
                 var parentDocument = await _sqliteRepo.GetDocumentById((int)newDocument.ParentId);
                 var parentPath = parentDocument.Path;
                 var parentUriPath = parentDocument.UriPath;
@@ -54,7 +59,7 @@ namespace OwlDocs.Domain.DocumentService
 
             if (duplicate != null)
             {
-                throw new Exception($"An Item Already Exists With a Path: {newDocument.Path}");
+                throw new DuplicateDocumentException($"An Item Already Exists With a Path: {newDocument.Path}");
             }
 
             // insert            
